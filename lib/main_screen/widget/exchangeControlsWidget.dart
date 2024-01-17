@@ -1,0 +1,122 @@
+import 'dart:developer';
+import 'package:cryptocalc/currencyCode.dart';
+import 'package:cryptocalc/main_screen/widget/inputAmountWidget.dart';
+import 'package:flutter/material.dart';
+import 'package:live_currency_rate/live_currency_rate.dart';
+import 'package:provider/provider.dart';
+
+class ExchangeControlsWidget extends StatefulWidget {
+  const ExchangeControlsWidget(this.exchangeRate, {super.key});
+
+  final double exchangeRate;
+
+  @override
+  ExchangeControlState createState() => ExchangeControlState();
+}
+
+class ExchangeControlState extends State<ExchangeControlsWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      Row(
+        children: [
+          ElevatedButton(
+              onPressed: () {
+                context.read<ExchangeModel>().toEur();
+              },
+              child: const Text("EUR")),
+          ElevatedButton(
+              onPressed: () {
+                context.read<ExchangeModel>().toUsd();
+              },
+              child: const Text("USD")),
+          ElevatedButton(
+              onPressed: () {
+                context.read<ExchangeModel>().toTry();
+              },
+              child: const Text("TRY")),
+          ElevatedButton(
+              onPressed: () {
+                context.read<ExchangeModel>().toChilPeso();
+              },
+              child: Text(CurrencyCode.chileanPeso)),
+        ],
+      ),
+      Text('${context.read<ExchangeModel>().getCurrencyRate}'),
+      const InputAmountWidget(),
+    ]);
+  }
+}
+
+class ExchangeModel extends ChangeNotifier {
+  ExchangeModel() {
+    log('constructor Model');
+  }
+  double _exchangedAmount = 1.0;
+  double _inputAmount = 1.0;
+  String _pairWith = '';
+  double _currencyRate = 0.0;
+
+  double get getCurrencyRate {
+    return _currencyRate;
+  }
+
+  String get getpairWith {
+    return _pairWith;
+  }
+
+  double get getExchangedAmount {
+    return _exchangedAmount;
+  }
+
+  double get getAmountFromInput {
+    return _inputAmount;
+  }
+
+  set firstNumber(String value) =>
+      _exchangedAmount = double.tryParse(value) ?? 1.0;
+
+  void toEur() async {
+    CurrencyRate rate = await LiveCurrencyRate.convertCurrency(
+        CurrencyCode.dollarUSA, CurrencyCode.euro, 1);
+    _exchangedAmount = rate.result * _inputAmount;
+    _currencyRate = rate.result;
+    _pairWith = "EUR";
+    print("toEur");
+  }
+
+  void toUsd() async {
+    CurrencyRate rate = await LiveCurrencyRate.convertCurrency(
+        CurrencyCode.dollarUSA, CurrencyCode.dollarUSA, 1);
+    _exchangedAmount = rate.result * _inputAmount;
+    _currencyRate = rate.result;
+    _pairWith = "USD";
+  }
+
+  void toTry() async {
+    CurrencyRate rate = await LiveCurrencyRate.convertCurrency(
+        CurrencyCode.dollarUSA, CurrencyCode.turkishLira, 1);
+    _exchangedAmount = rate.result * _inputAmount;
+    _currencyRate = rate.result;
+    _pairWith = CurrencyCode.turkishLira;
+  }
+
+  void toChilPeso() async {
+    CurrencyRate rate = await LiveCurrencyRate.convertCurrency(
+        CurrencyCode.dollarUSA, CurrencyCode.chileanPeso, 1);
+    _exchangedAmount = rate.result * _inputAmount;
+    _currencyRate = rate.result;
+    _pairWith = CurrencyCode.chileanPeso;
+  }
+
+  void setAmount(double amount) {
+    _inputAmount = amount;
+    _exchangedAmount = _exchangedAmount * amount;
+  }
+
+  @override
+  void dispose() {
+    log('dispose Model');
+    super.dispose();
+  }
+}
