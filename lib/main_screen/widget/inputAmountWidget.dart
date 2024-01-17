@@ -16,11 +16,12 @@ class InputAmountWidgetState extends State<InputAmountWidget> {
   @override
   Widget build(BuildContext context) {
     return TextField(
-      decoration: const InputDecoration(border: OutlineInputBorder()),
-      onChanged: (String value) => context
-          .read<ExchangeModel>()
-          .setAmount(double.tryParse(value) ?? 1.0),
-    );
+        decoration: const InputDecoration(border: OutlineInputBorder()),
+        onChanged: (String value) {
+          context
+              .read<ExchangeModel>()
+              .setAmount(double.tryParse(value) ?? 1.0);
+        });
   }
 
   @override

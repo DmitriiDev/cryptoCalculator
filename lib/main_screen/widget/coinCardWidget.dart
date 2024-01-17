@@ -112,4 +112,3 @@ Widget coinCard({
     ],
   );
 }
-

@@ -30,7 +30,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
       StreamController<List<ExchangeScreenCoinModel>>();
   late List<SymbolPrice> coinList = [];
   List<ExchangeScreenCoinModel> coinsList = [];
-  List<String> names = ["BTCUSDT", "ETHUSDT"];
+  List<String> names = [];
   late WebSocketChannel channelHome;
 
   @override
@@ -42,20 +42,20 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<ExchangeScreenCoinModel>>(
-      stream: _dataStreamController.stream,
-      initialData: allCoinsList,
-      builder: (context, snapshot) {
-        return MaterialApp(
-            home: Scaffold(
-                appBar: AppBar(
-                  title: const Text('Coin Exchange'),
-                ),
-                body: Center(
-                    child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.8,
-                  child: ChangeNotifierProvider.value(
-                    value: model,
+    return ChangeNotifierProvider.value(
+      value: model,
+      child: StreamBuilder<List<ExchangeScreenCoinModel>>(
+        stream: _dataStreamController.stream,
+        initialData: allCoinsList,
+        builder: (context, snapshot) {
+          return MaterialApp(
+              home: Scaffold(
+                  appBar: AppBar(
+                    title: const Text('Coin Exchange'),
+                  ),
+                  body: Center(
+                      child: SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.8,
                     child: Column(children: [
                       ExchangeControlsWidget(model.getCurrencyRate),
                       ElevatedButton(
@@ -74,14 +74,16 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
                                 context: context2,
                                 coin: snapshot.data![index],
                                 amount: model.getExchangedAmount,
-                                pairWith: model.getpairWith,
+                                pairWith:
+                                    context.watch<ExchangeModel>().getpairWith,
                               );
                             }),
                       ),
                     ]),
-                  ),
-                ))));
-      },
+                    // ),
+                  ))));
+        },
+      ),
     );
   }
 
@@ -92,18 +94,16 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
   }
 
   Future<void> _navigateAndDisplaySelection(BuildContext context) async {
-    // Navigator.push returns a Future that completes after calling
-    // Navigator.pop on the Selection Screen.
-    dispose();
-    final result = await Navigator.push(
+    channelHome.sink.close();
+    await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const CryptoListController()),
     ).then((value) {
-      print(coinList.first.symbol);
+      // print(coinList.first.symbol);
       coinList = coinList
           .where((element) => (value as List<String>).contains(element.symbol))
           .toList();
-      print(coinList.first.symbol);
+      // print(coinList.first.symbol);
       for (var c in coinList) {
         tickerList = [];
         allCoinsList = [];
@@ -122,8 +122,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
             lowDay: '',
             decimalCurrency: 3));
       }
-      print("tickerList ${tickerList.length}");
-      print("value is ${value}");
+      // print("tickerList ${tickerList.length}");
+      // print("value is ${value}");
       subscribeToCoins(tickerList, (value as List<String>));
     });
   }
@@ -163,8 +163,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
         }
       });
     } else {
-      // Handle error
-      print('Failed to load coin list: ${response.statusCode}');
+      // print('Failed to load coin list: ${response.statusCode}');
     }
   }
 
@@ -172,10 +171,10 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
     channelHome = IOWebSocketChannel.connect(Uri.parse(
       'wss://stream.binance.com:9443/ws/stream?',
     ));
-    print("connectToServer");
+    var tickerLowCased = (tickerList as List<String>).map((e) => e.toLowerCase()).toList();
     var subRequestHome = {
       'method': "SUBSCRIBE",
-      'params': tickerList,
+      'params': tickerLowCased,
       'id': 1,
     };
 
@@ -190,20 +189,15 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
     );
     result.listen((event) {
       var snapshot = jsonDecode(event);
-
       updateCoin(snapshot['s'].toString(), snapshot['c'].toString(),
           snapshot['P'].toString(), coinNames);
     });
   }
 
-  subscribeToCoins(List<String> tickerList, List<String> coinsToSubscribe) async {
+  subscribeToCoins(
+      List<String> tickerList, List<String> coinsToSubscribe) async {
     allCoinsList = coinsList;
     connectToServer(tickerList, coinsToSubscribe);
-  }
-
-  void dispose() {
-    print("dd");
-    channelHome.sink.close();
   }
 
   var selectedCurrency = '';
@@ -211,38 +205,19 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
 
   void updateCoin(String coinSymbol, String coinPrice, String coinPercentage,
       List<String> names) async {
+  var price = coinPrice.substring(0, coinPrice.length - 4);
 
     var index = allCoinsList
         .where((element) => names.contains(element.symbol.toUpperCase()))
         .toList();
-
-
+    for (var i in index) {
+      i.price = price ;
+      i.percentage = coinPercentage;
+    }
     setState(() {
       // print(names);
-      print("updateCoins ${index.length}");
+      // print("updateCoins ${index.length}");
       _dataStreamController.sink.add(index);
     });
   }
 }
-
-// List<String> tickerList = [
-//   "btcusdt@ticker",
-//   "ethusdt@ticker",
-//   "winusdt@ticker",
-//   "dentusdt@ticker",
-//   "xrpusdt@ticker",
-//   "etcusdt@ticker",
-//   "dogeusdt@ticker",
-//   "bnbusdt@ticker",
-//   "cakeusdt@ticker",
-//   "maticusdt@ticker",
-//   "trxusdt@ticker",
-//   "usdcusdt@ticker",
-//   "sandusdt@ticker",
-//   "maticbtc@ticker",
-//   "polybtc@ticker",
-//   "bnbbtc@ticker",
-//   "xrpeth@ticker",
-//   "shibusdt@ticker",
-//   "avaxusdt@ticker",
-// ];

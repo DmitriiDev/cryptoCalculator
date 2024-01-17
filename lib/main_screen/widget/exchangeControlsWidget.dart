@@ -55,7 +55,7 @@ class ExchangeModel extends ChangeNotifier {
   double _exchangedAmount = 1.0;
   double _inputAmount = 1.0;
   String _pairWith = '';
-  double _currencyRate = 0.0;
+  double _currencyRate = 1.0;
 
   double get getCurrencyRate {
     return _currencyRate;
@@ -83,11 +83,14 @@ class ExchangeModel extends ChangeNotifier {
     _currencyRate = rate.result;
     _pairWith = "EUR";
     print("toEur");
+        notifyListeners();
+
   }
 
   void toUsd() async {
     CurrencyRate rate = await LiveCurrencyRate.convertCurrency(
         CurrencyCode.dollarUSA, CurrencyCode.dollarUSA, 1);
+    print("rate.result:${rate.result} and _inputAmount:${_inputAmount}");
     _exchangedAmount = rate.result * _inputAmount;
     _currencyRate = rate.result;
     _pairWith = "USD";
@@ -99,6 +102,7 @@ class ExchangeModel extends ChangeNotifier {
     _exchangedAmount = rate.result * _inputAmount;
     _currencyRate = rate.result;
     _pairWith = CurrencyCode.turkishLira;
+        notifyListeners();
   }
 
   void toChilPeso() async {
@@ -107,11 +111,15 @@ class ExchangeModel extends ChangeNotifier {
     _exchangedAmount = rate.result * _inputAmount;
     _currencyRate = rate.result;
     _pairWith = CurrencyCode.chileanPeso;
+        notifyListeners();
+
   }
 
   void setAmount(double amount) {
     _inputAmount = amount;
-    _exchangedAmount = _exchangedAmount * amount;
+    _exchangedAmount = _currencyRate * amount;
+    notifyListeners();
+    print("setAmount ${_exchangedAmount}");
   }
 
   @override
