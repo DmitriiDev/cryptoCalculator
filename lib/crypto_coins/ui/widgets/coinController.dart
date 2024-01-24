@@ -84,19 +84,21 @@ class CryptoListControllerState extends State<CryptoListController> {
                                         model.filteredCryptoAssets[index].name),
                                     subtitle: Text(
                                         model.filteredCryptoAssets[index].id),
-                                    value: selectedItems[index],
+                                    value: model
+                                        .filteredCryptoAssets[index].isTracked,
                                     onChanged: (value) {
                                       setState(() {
-                                        itemsForReturn.clear();
-                                        selectedItems[index] = value!;
-                                        var indexNum = 0;
-                                        for (var i in selectedItems) {
-                                          if (i == true) {
-                                            itemsForReturn.add("${model
-                                                .filteredCryptoAssets[indexNum]
-                                                .id}USDT");
-                                          }
-                                          indexNum += 1;
+                                        if (model.filteredCryptoAssets[index]
+                                            .isTracked) {
+                                          model.filteredCryptoAssets[index]
+                                              .isTracked = false;
+                                          itemsForReturn.remove(model
+                                              .filteredCryptoAssets[index].id);
+                                        } else {
+                                          model.filteredCryptoAssets[index]
+                                              .isTracked = true;
+                                          itemsForReturn.add(
+                                              "${model.filteredCryptoAssets[index].id}USDT");
                                         }
                                       });
                                     });

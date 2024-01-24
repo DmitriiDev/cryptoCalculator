@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:cryptocalc/currency/currencyApi.dart';
+import 'package:cryptocalc/currency/yahooCurrencyModel.dart';
 import 'package:cryptocalc/currencyCode.dart';
 import 'package:cryptocalc/main_screen/widget/inputAmountWidget.dart';
 import 'package:flutter/material.dart';
@@ -77,14 +79,15 @@ class ExchangeModel extends ChangeNotifier {
       _exchangedAmount = double.tryParse(value) ?? 1.0;
 
   void toEur() async {
-    CurrencyRate rate = await LiveCurrencyRate.convertCurrency(
-        CurrencyCode.dollarUSA, CurrencyCode.euro, 1);
-    _exchangedAmount = rate.result * _inputAmount;
-    _currencyRate = rate.result;
+    final chartData = await YahooFinanceApi.fetchChartData('EUR=X');
+    final rate = YahooFinanceResponse.fromJson(chartData);
+
+    _exchangedAmount =
+        rate.chart.result.first.meta.previousClose * _inputAmount;
+    _currencyRate = rate.chart.result.first.meta.previousClose;
     _pairWith = "EUR";
     print("toEur");
-        notifyListeners();
-
+    notifyListeners();
   }
 
   void toUsd() async {
@@ -94,25 +97,29 @@ class ExchangeModel extends ChangeNotifier {
     _exchangedAmount = rate.result * _inputAmount;
     _currencyRate = rate.result;
     _pairWith = "USD";
+    notifyListeners();
   }
 
   void toTry() async {
-    CurrencyRate rate = await LiveCurrencyRate.convertCurrency(
-        CurrencyCode.dollarUSA, CurrencyCode.turkishLira, 1);
-    _exchangedAmount = rate.result * _inputAmount;
-    _currencyRate = rate.result;
+
+    final chartData = await YahooFinanceApi.fetchChartData('TRY=X');
+    final rate = YahooFinanceResponse.fromJson(chartData);
+
+    _exchangedAmount =
+        rate.chart.result.first.meta.previousClose * _inputAmount;
+    _currencyRate = rate.chart.result.first.meta.previousClose;
     _pairWith = CurrencyCode.turkishLira;
-        notifyListeners();
+    notifyListeners();
   }
 
   void toChilPeso() async {
-    CurrencyRate rate = await LiveCurrencyRate.convertCurrency(
-        CurrencyCode.dollarUSA, CurrencyCode.chileanPeso, 1);
-    _exchangedAmount = rate.result * _inputAmount;
-    _currencyRate = rate.result;
+    final chartData = await YahooFinanceApi.fetchChartData('CLP=X');
+    final rate = YahooFinanceResponse.fromJson(chartData);
+    _exchangedAmount =
+        rate.chart.result.first.meta.previousClose * _inputAmount;
+    _currencyRate = rate.chart.result.first.meta.previousClose;
     _pairWith = CurrencyCode.chileanPeso;
-        notifyListeners();
-
+    notifyListeners();
   }
 
   void setAmount(double amount) {

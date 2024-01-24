@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'package:cryptocalc/crypto_coins/model/binanceCoinModel.dart';
 import 'package:cryptocalc/crypto_coins/model/exchangeScreenCoinModel.dart';
 import 'package:cryptocalc/main_screen/widget/exchangeControlsWidget.dart';
+import 'package:cryptocalc/testTickerSearch.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypto_market/Crypto_Market/Model/coin_model.dart';
 import 'package:cryptocalc/crypto_coins/ui/widgets/coinController.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:stock_market_data/stock_market_data.dart';
+import 'package:ticker_search/ticker_search.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'coinCardWidget.dart';
@@ -23,7 +26,6 @@ class ExchangFullScreenWidget extends StatefulWidget {
 class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
   final model = ExchangeModel();
   List<ExchangeScreenCoinModel> allCoinsList = <ExchangeScreenCoinModel>[];
-  List<ExchangeScreenCoinModel> wishlistCoinsList = <ExchangeScreenCoinModel>[];
   List<String> tickerList = [];
   double amount = 1.0;
   final StreamController<List<ExchangeScreenCoinModel>> _dataStreamController =
@@ -32,6 +34,12 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
   List<ExchangeScreenCoinModel> coinsList = [];
   List<String> names = [];
   late WebSocketChannel channelHome;
+  final StockMarketDataService stockMarketDataService =
+      StockMarketDataService();
+  final YahooFinanceService yahooFinanceServicePrices = YahooFinanceService();
+  List<StockTicker>? stockTicker = [];
+  Map<String, String> tickers = <String, String>{};
+  List<ExchangeScreenCoinModel> stocksData = [];
 
   @override
   void initState() {
@@ -58,11 +66,65 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
                     height: MediaQuery.of(context).size.height * 0.8,
                     child: Column(children: [
                       ExchangeControlsWidget(model.getCurrencyRate),
-                      ElevatedButton(
-                          onPressed: () {
-                            _navigateAndDisplaySelection(context);
-                          },
-                          child: const Text("Coins")),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                              onPressed: () {
+                                _navigateAndDisplaySelection(context);
+                              },
+                              child: const Text("Coins")),
+                          ElevatedButton(
+                              onPressed: () async {
+                                stockTicker = await showSearch(
+                                  context: context,
+                                  delegate: TickerSearch(
+                                    searchFieldLabel: 'Search ticker',
+                                    suggestions: [
+                                      TickerSuggestion(
+                                        const Icon(Icons.view_headline),
+                                        'Main',
+                                        TickersList.main,
+                                      ),
+                                      TickerSuggestion(
+                                        const Icon(Icons.business_sharp),
+                                        'Companies',
+                                        TickersList.companies,
+                                      ),
+                                      TickerSuggestion(
+                                        const Icon(Icons
+                                            .precision_manufacturing_outlined),
+                                        'Sectors',
+                                        TickersList.sectors,
+                                      ),
+                                      TickerSuggestion(
+                                        const Icon(Icons.workspaces_outline),
+                                        'Futures',
+                                        TickersList.futures,
+                                      ),
+                                      TickerSuggestion(
+                                        const Icon(
+                                            Icons.account_balance_outlined),
+                                        'Bonds',
+                                        TickersList.bonds,
+                                      ),
+                                    ],
+                                  ),
+                                ).then((value) {
+                                  value!
+                                      .map((e) => tickers[e.symbol] =
+                                          e.description ?? "")
+                                      .toList();
+                                  getStockData(tickers);
+                                });
+                                print(tickers);
+
+                                setState(() {
+                                  _dataStreamController.sink.add(stocksData);
+                                });
+                              },
+                              child: const Text("Stocks"))
+                        ],
+                      ),
                       const SizedBox(height: 20),
                       Expanded(
                         child: ListView.builder(
@@ -80,7 +142,6 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
                             }),
                       ),
                     ]),
-                    // ),
                   ))));
         },
       ),
@@ -100,14 +161,17 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
       MaterialPageRoute(builder: (context) => const CryptoListController()),
     ).then((value) {
       // print(coinList.first.symbol);
+      tickerList = [];
+      allCoinsList = [];
+      for (var i in (value as List<String>)) {
+        tickerList.add('${i.toLowerCase()}@ticker');
+      }
       coinList = coinList
-          .where((element) => (value as List<String>).contains(element.symbol))
+          .where((element) =>
+              (value as List<String>).contains(element.symbol.toUpperCase()))
           .toList();
       // print(coinList.first.symbol);
       for (var c in coinList) {
-        tickerList = [];
-        allCoinsList = [];
-        tickerList.add('${c.symbol}@ticker');
         allCoinsList.add(ExchangeScreenCoinModel(
             id: "",
             image: "",
@@ -122,8 +186,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
             lowDay: '',
             decimalCurrency: 3));
       }
-      // print("tickerList ${tickerList.length}");
-      // print("value is ${value}");
+      print("tickerList ${tickerList.length}");
+      print("value is ${value}");
       subscribeToCoins(tickerList, (value as List<String>));
     });
   }
@@ -167,11 +231,37 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
     }
   }
 
+  void getStockData(Map<String, String> stockNames) async {
+    stockNames.forEach((key, value) async {
+      await stockMarketDataService
+          .getBackTestResultForSymbol(key)
+          .then((result) {
+        stocksData.add(ExchangeScreenCoinModel(
+            id: "",
+            image: "",
+            name: key,
+            shortName: value,
+            price: '${result.endPrice}',
+            lastPrice: '0.0',
+            percentage: '0.0',
+            symbol: key,
+            pairWith: "USDT",
+            highDay: '',
+            lowDay: '',
+            decimalCurrency: 3));
+        setState(() {
+          _dataStreamController.sink.add(stocksData);
+        });
+      });
+    });
+  }
+
   connectToServer(tickerList, List<String> coinNames) {
     channelHome = IOWebSocketChannel.connect(Uri.parse(
       'wss://stream.binance.com:9443/ws/stream?',
     ));
-    var tickerLowCased = (tickerList as List<String>).map((e) => e.toLowerCase()).toList();
+    var tickerLowCased =
+        (tickerList as List<String>).map((e) => e.toLowerCase()).toList();
     var subRequestHome = {
       'method': "SUBSCRIBE",
       'params': tickerLowCased,
@@ -189,6 +279,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
     );
     result.listen((event) {
       var snapshot = jsonDecode(event);
+      // print(snapshot);
       updateCoin(snapshot['s'].toString(), snapshot['c'].toString(),
           snapshot['P'].toString(), coinNames);
     });
@@ -205,19 +296,17 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
 
   void updateCoin(String coinSymbol, String coinPrice, String coinPercentage,
       List<String> names) async {
-  var price = coinPrice.substring(0, coinPrice.length - 4);
-
+    var price = coinPrice.substring(0, coinPrice.length - 4);
     var index = allCoinsList
         .where((element) => names.contains(element.symbol.toUpperCase()))
         .toList();
+
     for (var i in index) {
-      i.price = price ;
-      i.percentage = coinPercentage;
+      if (i.symbol == coinSymbol) {
+        i.price = price;
+        i.percentage = coinPercentage;
+      }
     }
-    setState(() {
-      // print(names);
-      // print("updateCoins ${index.length}");
-      _dataStreamController.sink.add(index);
-    });
+    _dataStreamController.sink.add(index);
   }
 }

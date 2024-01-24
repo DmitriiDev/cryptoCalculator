@@ -29,5 +29,4 @@ class CurrencyCode {
   static String saudiRiyal = "SAR";
   static String unitedArabEmiratesDirham = "AED";
   static String israeliNewShekel = "ILS";
-  
 }

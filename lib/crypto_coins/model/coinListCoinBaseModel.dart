@@ -9,6 +9,7 @@ class CryptoAsset {
   final CryptoDetails details;
   final String defaultNetwork;
   final List<SupportedNetwork> supportedNetworks;
+  var isTracked = false;
 
   CryptoAsset({
     required this.id,
