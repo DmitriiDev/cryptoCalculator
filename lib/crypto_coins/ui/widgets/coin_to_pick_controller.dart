@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cryptocalc/crypto_coins/model/coinListCoinBaseModel.dart';
 import 'package:cryptocalc/crypto_coins/network/coinBaseNeteworkManager.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +14,7 @@ class CryptoListController extends StatefulWidget {
 class CryptoListControllerState extends State<CryptoListController> {
   final TextEditingController searchController = TextEditingController();
   late Future<List<CryptoAsset>> cryptoAssetsFuture;
-  List<CryptoAsset> filteredCryptoAssets = [];
   final model = SearchDataModel();
-  late List<bool> selectedItems = List.generate(10000, (index) => false);
   List<String> itemsForReturn = [];
 
   @override
@@ -112,14 +109,6 @@ class CryptoListControllerState extends State<CryptoListController> {
             ],
           ),
         ));
-  }
-
-  Widget _sizedContainer(Widget child) {
-    return SizedBox(
-      width: 25,
-      height: 25,
-      child: Center(child: child),
-    );
   }
 }
 

@@ -54,8 +54,6 @@ class CryptoDetails {
   final List<String>? groupTypes;
   final String? displayName;
   final int? processingTimeSeconds;
-  // final double? minWithdrawalAmount;
-  // final double? maxWithdrawalAmount;
 
   CryptoDetails({
     required this.type,
@@ -68,8 +66,6 @@ class CryptoDetails {
     required this.groupTypes,
     required this.displayName,
     required this.processingTimeSeconds,
-    // required this.minWithdrawalAmount,
-    // required this.maxWithdrawalAmount,
   });
 
   factory CryptoDetails.fromJson(Map<String, dynamic> json) {
@@ -84,8 +80,6 @@ class CryptoDetails {
       groupTypes: List<String>.from(json['group_types']),
       displayName: json['display_name'],
       processingTimeSeconds: json['processing_time_seconds'],
-      // minWithdrawalAmount: json['min_withdrawal_amount'],
-      // maxWithdrawalAmount: json['max_withdrawal_amount'],
     );
   }
 }
@@ -97,8 +91,6 @@ class SupportedNetwork {
   final String? contractAddress;
   final String? cryptoAddressLink;
   final String? cryptoTransactionLink;
-  // final int minWithdrawalAmount;
-  // final int maxWithdrawalAmount;
   final int? networkConfirmations;
 
   SupportedNetwork({
@@ -108,8 +100,6 @@ class SupportedNetwork {
     required this.contractAddress,
     required this.cryptoAddressLink,
     required this.cryptoTransactionLink,
-    // required this.minWithdrawalAmount,
-    // required this.maxWithdrawalAmount,
     required this.networkConfirmations,
   });
 
@@ -121,8 +111,6 @@ class SupportedNetwork {
       contractAddress: json['contract_address'],
       cryptoAddressLink: json['crypto_address_link'],
       cryptoTransactionLink: json['crypto_transaction_link'],
-      // minWithdrawalAmount: json['min_withdrawal_amount'],
-      // maxWithdrawalAmount: json['max_withdrawal_amount'],
       networkConfirmations: json['network_confirmations'],
     );
   }

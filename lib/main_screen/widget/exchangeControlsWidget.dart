@@ -1,6 +1,6 @@
 import 'dart:developer';
-import 'package:cryptocalc/currency/currencyApi.dart';
-import 'package:cryptocalc/currency/yahooCurrencyModel.dart';
+import 'package:cryptocalc/currency/network/currency_api.dart';
+import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currencyCode.dart';
 import 'package:cryptocalc/main_screen/widget/inputAmountWidget.dart';
 import 'package:flutter/material.dart';
@@ -80,7 +80,7 @@ class ExchangeModel extends ChangeNotifier {
 
   void toEur() async {
     final chartData = await YahooFinanceApi.fetchChartData('EUR=X');
-    final rate = YahooFinanceResponse.fromJson(chartData);
+    final rate = YahooFinanceStockResponse.fromJson(chartData);
 
     _exchangedAmount =
         rate.chart.result.first.meta.previousClose * _inputAmount;
@@ -101,9 +101,8 @@ class ExchangeModel extends ChangeNotifier {
   }
 
   void toTry() async {
-
     final chartData = await YahooFinanceApi.fetchChartData('TRY=X');
-    final rate = YahooFinanceResponse.fromJson(chartData);
+    final rate = YahooFinanceStockResponse.fromJson(chartData);
 
     _exchangedAmount =
         rate.chart.result.first.meta.previousClose * _inputAmount;
@@ -114,7 +113,7 @@ class ExchangeModel extends ChangeNotifier {
 
   void toChilPeso() async {
     final chartData = await YahooFinanceApi.fetchChartData('CLP=X');
-    final rate = YahooFinanceResponse.fromJson(chartData);
+    final rate = YahooFinanceStockResponse.fromJson(chartData);
     _exchangedAmount =
         rate.chart.result.first.meta.previousClose * _inputAmount;
     _currencyRate = rate.chart.result.first.meta.previousClose;

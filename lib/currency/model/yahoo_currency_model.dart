@@ -1,15 +1,14 @@
-class YahooFinanceResponse {
+class YahooFinanceStockResponse {
   Chart chart;
 
-  YahooFinanceResponse({required this.chart});
+  YahooFinanceStockResponse({required this.chart});
 
-  factory YahooFinanceResponse.fromJson(Map<String, dynamic> json) {
-    return YahooFinanceResponse(
+  factory YahooFinanceStockResponse.fromJson(Map<String, dynamic> json) {
+    return YahooFinanceStockResponse(
       chart: Chart.fromJson(json['chart']),
     );
   }
 }
-
 
 class ChartModel {
   Chart chart;
@@ -42,16 +41,14 @@ class Chart {
 
 class Result {
   YahooCurrencyData meta;
-  // List<dynamic> timestamp;
-  // Indicators indicators;
 
-  Result({required this.meta,});
+  Result({
+    required this.meta,
+  });
 
   factory Result.fromJson(Map<String, dynamic> json) {
     return Result(
       meta: YahooCurrencyData.fromJson(json['meta']),
-      // timestamp: json['timestamp'],
-      // indicators: Indicators.fromJson(json['indicators']),
     );
   }
 }
@@ -61,73 +58,29 @@ class YahooCurrencyData {
   String symbol;
   String exchangeName;
   String instrumentType;
-  // int firstTradeDate;
-  // int regularMarketTime;
-  // int gmtoffset;
-  // String timezone;
-  // String exchangeTimezoneName;
   double regularMarketPrice;
   double chartPreviousClose;
   double previousClose;
-  // int scale;
-  // int priceHint;
-  // CurrentTradingPeriod currentTradingPeriod;
-  // List<List<TradingPeriod>> tradingPeriods;
-  // String dataGranularity;
-  // String range;
-  // List<String> validRanges;
 
   YahooCurrencyData({
     required this.currency,
     required this.symbol,
     required this.exchangeName,
     required this.instrumentType,
-    // required this.firstTradeDate,
-    // required this.regularMarketTime,
-    // required this.gmtoffset,
-    // required this.timezone,
-    // required this.exchangeTimezoneName,
     required this.regularMarketPrice,
     required this.chartPreviousClose,
     required this.previousClose,
-    // required this.scale,
-    // required this.priceHint,
-    // required this.currentTradingPeriod,
-    // required this.tradingPeriods,
-    // required this.dataGranularity,
-    // required this.range,
-    // required this.validRanges,
   });
 
   factory YahooCurrencyData.fromJson(Map<String, dynamic> json) {
-    // var tradingPeriodsList = json['tradingPeriods'] as List;
-    // List<List<TradingPeriod>> tradingPeriods = tradingPeriodsList
-    //     .map((e) => (e as List)
-    //         .map((period) => TradingPeriod.fromJson(period))
-    //         .toList())
-    //     .toList();
-
     return YahooCurrencyData(
       currency: json['currency'],
       symbol: json['symbol'],
       exchangeName: json['exchangeName'],
       instrumentType: json['instrumentType'],
-      // firstTradeDate: json['firstTradeDate'],
-      // regularMarketTime: json['regularMarketTime'],
-      // gmtoffset: json['gmtoffset'],
-      // timezone: json['timezone'],
-      // exchangeTimezoneName: json['exchangeTimezoneName'],
       regularMarketPrice: json['regularMarketPrice'],
       chartPreviousClose: json['chartPreviousClose'],
       previousClose: json['previousClose'],
-      // scale: json['scale'],
-      // priceHint: json['priceHint'],
-      // currentTradingPeriod:
-      //     CurrentTradingPeriod.fromJson(json['currentTradingPeriod']),
-      // tradingPeriods: tradingPeriods,
-      // dataGranularity: json['dataGranularity'],
-      // range: json['range'],
-      // validRanges: List<String>.from(json['validRanges']),
     );
   }
 }

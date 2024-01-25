@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:cryptocalc/currency/yahooCurrencyModel.dart';
 import 'package:http/http.dart' as http;
 
 class YahooFinanceApi {
@@ -13,16 +12,5 @@ class YahooFinanceApi {
     } else {
       throw Exception('Failed to load chart data');
     }
-  }
-}
-
-void main() async {
-  try {
-    final chartData = await YahooFinanceApi.fetchChartData('NZD=X');
-    final ff = YahooFinanceResponse.fromJson(chartData);
-    print(ff.chart.result.first.meta.previousClose);
-    // Process the chart data here
-  } catch (e) {
-    print('Error: $e');
   }
 }

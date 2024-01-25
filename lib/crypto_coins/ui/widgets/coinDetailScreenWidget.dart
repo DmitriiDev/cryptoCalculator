@@ -20,7 +20,6 @@ class CoinDetailScreenWidget extends StatelessWidget {
             Text('Symbol: ${coin.symbol}'),
             Text('Market Cap: ${coin.marketCap}'),
             Text('Price: ${coin.price}'),
-            // Add more details as needed
           ],
         ),
       ),
