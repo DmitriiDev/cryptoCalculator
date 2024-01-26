@@ -143,9 +143,11 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
                               return coinCard(
                                 context: context2,
                                 coin: snapshot.data![index],
-                                amount: model.getExchangedAmount,
+                                amount: model.getAmountFromInput,
                                 pairWith:
                                     context.watch<ExchangeModel>().getpairWith,
+                                rate: model.getCurrencyRate,
+                                type: snapshot.data![index].currency,
                               );
                             }),
                       ),
@@ -192,7 +194,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
             pairWith: c.symbol,
             highDay: '',
             lowDay: '',
-            decimalCurrency: 3));
+            decimalCurrency: 3,
+            currency: false));
       }
       print("tickerList ${tickerList.length}");
       print("value is ${value}");
@@ -205,7 +208,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
       context,
       MaterialPageRoute(builder: (context) => const CurrencyListController()),
     ).then((value) {
-      getCurreData(value);
+      getCurrencyData(value);
     });
   }
 
@@ -240,7 +243,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
               pairWith: c.symbol,
               highDay: '',
               lowDay: '',
-              decimalCurrency: 3));
+              decimalCurrency: 3,
+              currency: false));
         }
       });
     } else {
@@ -266,7 +270,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
             pairWith: "USDT",
             highDay: '',
             lowDay: '',
-            decimalCurrency: 3));
+            decimalCurrency: 3,
+            currency: false));
         setState(() {
           _dataStreamController.sink.add(stocksData);
         });
@@ -274,7 +279,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
     });
   }
 
-  void getCurreData(List<CurrencyToPickModel> currencyNames) async {
+  void getCurrencyData(List<CurrencyToPickModel> currencyNames) async {
     currencyData = [];
     currencyNames.forEach((value) async {
       await YahooFinanceApi.fetchChartData('${value.name}=X').then((result) {
@@ -291,7 +296,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
             pairWith: "USD",
             highDay: '',
             lowDay: '',
-            decimalCurrency: 3));
+            decimalCurrency: 3,
+            currency: true));
         setState(() {
           _dataStreamController.sink.add(currencyData);
         });

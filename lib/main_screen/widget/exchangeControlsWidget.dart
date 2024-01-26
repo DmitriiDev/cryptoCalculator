@@ -1,10 +1,10 @@
 import 'dart:developer';
+import 'package:cryptocalc/currency/model/currency_to_pick_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
 import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
-import 'package:cryptocalc/currencyCode.dart';
+import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:cryptocalc/main_screen/widget/inputAmountWidget.dart';
 import 'package:flutter/material.dart';
-import 'package:live_currency_rate/live_currency_rate.dart';
 import 'package:provider/provider.dart';
 
 class ExchangeControlsWidget extends StatefulWidget {
@@ -17,36 +17,38 @@ class ExchangeControlsWidget extends StatefulWidget {
 }
 
 class ExchangeControlState extends State<ExchangeControlsWidget> {
+  String currencyText = "Currency";
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
       Row(
         children: [
+          const Expanded(
+            child: InputAmountWidget(),
+          ),
+          const SizedBox(width: 16.0),
           ElevatedButton(
               onPressed: () {
-                context.read<ExchangeModel>().toEur();
+                navigateToCurrencyList(context);
               },
-              child: const Text("EUR")),
-          ElevatedButton(
-              onPressed: () {
-                context.read<ExchangeModel>().toUsd();
-              },
-              child: const Text("USD")),
-          ElevatedButton(
-              onPressed: () {
-                context.read<ExchangeModel>().toTry();
-              },
-              child: const Text("TRY")),
-          ElevatedButton(
-              onPressed: () {
-                context.read<ExchangeModel>().toChilPeso();
-              },
-              child: Text(CurrencyCode.chileanPeso)),
+              child: Text(currencyText)),
+          const SizedBox(width: 16.0),
         ],
       ),
-      Text('${context.read<ExchangeModel>().getCurrencyRate}'),
-      const InputAmountWidget(),
+      Text('${context.watch<ExchangeModel>().getCurrencyRate}'),
     ]);
+  }
+
+  Future<void> navigateToCurrencyList(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CurrencyListController()),
+    ).then((value) async {
+      currencyText = (value as List<CurrencyToPickModel>).first.name;
+      context.read<ExchangeModel>().toExchange(currencyText);
+      setState(() {});
+    });
   }
 }
 
@@ -75,49 +77,18 @@ class ExchangeModel extends ChangeNotifier {
     return _inputAmount;
   }
 
-  set firstNumber(String value) =>
-      _exchangedAmount = double.tryParse(value) ?? 1.0;
+  // set firstNumber(String value) =>
+  //     _exchangedAmount = double.tryParse(value) ?? 1.0;
 
-  void toEur() async {
-    final chartData = await YahooFinanceApi.fetchChartData('EUR=X');
+  void toExchange(String currencyCod) async {
+    final chartData = await YahooFinanceApi.fetchChartData('$currencyCod=X');
     final rate = YahooFinanceStockResponse.fromJson(chartData);
 
     _exchangedAmount =
         rate.chart.result.first.meta.previousClose * _inputAmount;
-    _currencyRate = rate.chart.result.first.meta.previousClose;
-    _pairWith = "EUR";
-    print("toEur");
-    notifyListeners();
-  }
-
-  void toUsd() async {
-    CurrencyRate rate = await LiveCurrencyRate.convertCurrency(
-        CurrencyCode.dollarUSA, CurrencyCode.dollarUSA, 1);
-    print("rate.result:${rate.result} and _inputAmount:${_inputAmount}");
-    _exchangedAmount = rate.result * _inputAmount;
-    _currencyRate = rate.result;
-    _pairWith = "USD";
-    notifyListeners();
-  }
-
-  void toTry() async {
-    final chartData = await YahooFinanceApi.fetchChartData('TRY=X');
-    final rate = YahooFinanceStockResponse.fromJson(chartData);
-
-    _exchangedAmount =
-        rate.chart.result.first.meta.previousClose * _inputAmount;
-    _currencyRate = rate.chart.result.first.meta.previousClose;
-    _pairWith = CurrencyCode.turkishLira;
-    notifyListeners();
-  }
-
-  void toChilPeso() async {
-    final chartData = await YahooFinanceApi.fetchChartData('CLP=X');
-    final rate = YahooFinanceStockResponse.fromJson(chartData);
-    _exchangedAmount =
-        rate.chart.result.first.meta.previousClose * _inputAmount;
-    _currencyRate = rate.chart.result.first.meta.previousClose;
-    _pairWith = CurrencyCode.chileanPeso;
+    // _currencyRate = rate.chart.result.first.meta.previousClose;
+    _pairWith = rate.chart.result.first.meta.symbol;
+    setRate(rate.chart.result.first.meta.previousClose);
     notifyListeners();
   }
 
@@ -126,6 +97,12 @@ class ExchangeModel extends ChangeNotifier {
     _exchangedAmount = _currencyRate * amount;
     notifyListeners();
     print("setAmount ${_exchangedAmount}");
+  }
+
+  void setRate(double rate) {
+    _currencyRate = rate;
+    notifyListeners();
+    print("rate ${_currencyRate}");
   }
 
   @override

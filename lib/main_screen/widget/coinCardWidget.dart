@@ -6,12 +6,16 @@ Widget coinCard({
   required ExchangeScreenCoinModel coin,
   required String pairWith,
   required double amount,
+  required double rate,
+  required bool type
 }) {
   double oldPrice = coin.lastPrice.isEmpty
       ? double.parse(coin.price)
       : double.parse(coin.lastPrice);
   coin.lastPrice = coin.price;
-
+  print('coin.price ${coin.price}');
+  print('amount $amount');
+  print('rate $rate');
   final height = MediaQuery.of(context).size.height;
   final width = MediaQuery.of(context).size.width;
   return Column(
@@ -87,11 +91,15 @@ Widget coinCard({
               SizedBox(
                 width: width * 0.22,
                 child: Text(
-                  coin.pairWith.toLowerCase() == 'inr'
-                      ? (double.parse((coin.price)) * amount)
-                          .toStringAsFixed(coin.decimalCurrency)
-                      : (double.parse(coin.price) * amount)
-                          .toStringAsFixed(coin.decimalCurrency),
+                  // coin.pairWith.toLowerCase() == 'inr'
+                  //     ? (rate / (double.parse((coin.price)) * amount))
+                  //         .toStringAsFixed(coin.decimalCurrency)
+                  //     : (double.parse(coin.price) * amount)
+                  //         .toStringAsFixed(coin.decimalCurrency),
+                  type ? ((double.parse((coin.price)) * amount) / rate)
+                      .toStringAsFixed(coin.decimalCurrency) : 
+                      ((double.parse((coin.price)) * amount) * rate)
+                      .toStringAsFixed(coin.decimalCurrency),
                   textAlign: TextAlign.end,
                   maxLines: 1,
                   style: TextStyle(

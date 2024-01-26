@@ -11,6 +11,7 @@ class ExchangeScreenCoinModel {
   String highDay;
   String lowDay;
   int decimalCurrency;
+  bool currency;
 
   ExchangeScreenCoinModel({
     required this.id,
@@ -25,6 +26,7 @@ class ExchangeScreenCoinModel {
     required this.highDay,
     required this.lowDay,
     required this.decimalCurrency,
+    required this.currency
   });
 
   @override
