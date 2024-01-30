@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:cryptocalc/currency/model/country.dart';
 import 'package:cryptocalc/currency/model/currency_to_pick_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
 import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
@@ -45,7 +46,7 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
       context,
       MaterialPageRoute(builder: (context) => const CurrencyListController()),
     ).then((value) async {
-      currencyText = (value as List<CurrencyToPickModel>).first.name;
+      currencyText = (value as List<Country>).first.currencyCode!;
       context.read<ExchangeModel>().toExchange(currencyText);
       setState(() {});
     });

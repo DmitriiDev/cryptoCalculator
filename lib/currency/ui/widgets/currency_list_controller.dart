@@ -1,3 +1,5 @@
+import 'package:cryptocalc/currency/model/country.dart';
+import 'package:cryptocalc/currency/model/country_list.dart';
 import 'package:cryptocalc/currency/model/currency_to_pick_model.dart';
 import 'package:cryptocalc/currencyCode.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +15,7 @@ class CurrencyListController extends StatefulWidget {
 class CurrencyListControllerState extends State<CurrencyListController> {
   final TextEditingController searchController = TextEditingController();
   final model = SearchDataModel();
-  List<CurrencyToPickModel> itemsForReturn = [];
+  List<Country> itemsForReturn = [];
 
   @override
   void initState() {
@@ -65,9 +67,10 @@ class CurrencyListControllerState extends State<CurrencyListController> {
                         itemCount: model.filteredCurrencies.length,
                         itemBuilder: (BuildContext context, index) {
                           return CheckboxListTile(
-                              title: Text(model.filteredCurrencies[index].name),
+                              secondary: SizedBox(height: 35, width: 45, child: Image.asset(getFlagImageAssetPath(model.filteredCurrencies[index].isoCode!))),
+                              title: Text(model.filteredCurrencies[index].currencyCode!),
                               subtitle:
-                                  Text(model.filteredCurrencies[index].shortName),
+                                  Text(model.filteredCurrencies[index].name!),
                               value: model.filteredCurrencies[index].isPicked,
                               onChanged: (value) {
                                 setState(() {
@@ -92,22 +95,26 @@ class CurrencyListControllerState extends State<CurrencyListController> {
           ),
         ));
   }
+    static String getFlagImageAssetPath(String isoCode) {
+    return "assets/${isoCode.toLowerCase()}.png";
+  }
+
 }
 
 class SearchDataModel extends ChangeNotifier {
-  List<CurrencyToPickModel> currenciesList = [];
-  List<CurrencyToPickModel> filteredCurrencies = [];
+  List<Country> currenciesList = [];
+  List<Country> filteredCurrencies = [];
 
   SearchDataModel() {
-    currencyMap.forEach((key, value) {
+    countryList.forEach((value) {
       currenciesList.add(
-          CurrencyToPickModel(name: key, shortName: value, isPicked: false));
+          value);
     });
     filteredCurrencies = currenciesList;
   }
   void setFiltredList(String search) {
     filteredCurrencies = currenciesList.where((currency) {
-      return currency.name.toLowerCase().contains(search.toLowerCase());
+      return currency.name!.toLowerCase().contains(search.toLowerCase());
     }).toList();
   }
 }

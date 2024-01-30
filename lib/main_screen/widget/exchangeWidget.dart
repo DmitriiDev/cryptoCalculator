@@ -1,13 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
+// import 'package:country_currency_pickers/country.dart';
+// import 'package:country_currency_pickers/country_picker_cupertino.dart';
 import 'package:cryptocalc/crypto_coins/model/binanceCoinModel.dart';
 import 'package:cryptocalc/crypto_coins/model/exchangeScreenCoinModel.dart';
-import 'package:cryptocalc/currency/model/currency_to_pick_model.dart';
+import 'package:cryptocalc/currency/model/country.dart';
+// import 'package:cryptocalc/currency/model/currency_to_pick_model.dart';
 import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:cryptocalc/main_screen/widget/exchangeControlsWidget.dart';
 import 'package:cryptocalc/testTickerSearch.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypto_market/Crypto_Market/Model/coin_model.dart';
 import 'package:cryptocalc/crypto_coins/ui/widgets/coin_to_pick_controller.dart';
@@ -197,8 +201,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
             decimalCurrency: 3,
             currency: false));
       }
-      print("tickerList ${tickerList.length}");
-      print("value is ${value}");
+      // print("tickerList ${tickerList.length}");
+      // print("value is ${value}");
       subscribeToCoins(tickerList, (value as List<String>));
     });
   }
@@ -210,6 +214,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
     ).then((value) {
       getCurrencyData(value);
     });
+
   }
 
   Future<void> fetchCoinListFromBinance() async {
@@ -279,20 +284,22 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
     });
   }
 
-  void getCurrencyData(List<CurrencyToPickModel> currencyNames) async {
+  void getCurrencyData(List<Country> currencyNames) async {
     currencyData = [];
     currencyNames.forEach((value) async {
-      await YahooFinanceApi.fetchChartData('${value.name}=X').then((result) {
+      print(value.currencyCode);
+      await YahooFinanceApi.fetchChartData('${value.currencyCode}=X')
+          .then((result) {
         final rate = YahooFinanceStockResponse.fromJson(result);
         currencyData.add(ExchangeScreenCoinModel(
             id: "",
             image: "",
-            name: value.name,
-            shortName: value.shortName,
+            name: value.name!,
+            shortName: value.currencyCode!,
             price: '${rate.chart.result.first.meta.previousClose}',
             lastPrice: '0.0',
             percentage: '0.0',
-            symbol: value.name,
+            symbol: value.currencyName!,
             pairWith: "USD",
             highDay: '',
             lowDay: '',
