@@ -182,7 +182,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
       }
       coinList = coinList
           .where((element) =>
-              (value as List<String>).contains(element.symbol.toUpperCase()))
+            value.contains(element.symbol.toUpperCase()))
           .toList();
       // print(coinList.first.symbol);
       for (var c in coinList) {
@@ -203,7 +203,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
       }
       // print("tickerList ${tickerList.length}");
       // print("value is ${value}");
-      subscribeToCoins(tickerList, (value as List<String>));
+      subscribeToCoins(tickerList, value);
     });
   }
 
@@ -299,7 +299,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
             price: '${rate.chart.result.first.meta.previousClose}',
             lastPrice: '0.0',
             percentage: '0.0',
-            symbol: value.currencyName!,
+            symbol: value.isoCode!,
             pairWith: "USD",
             highDay: '',
             lowDay: '',

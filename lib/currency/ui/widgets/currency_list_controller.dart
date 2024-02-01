@@ -24,6 +24,9 @@ class CurrencyListControllerState extends State<CurrencyListController> {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
         appBar: AppBar(
             title: const Text('Currencies'),
@@ -67,18 +70,46 @@ class CurrencyListControllerState extends State<CurrencyListController> {
                         itemCount: model.filteredCurrencies.length,
                         itemBuilder: (BuildContext context, index) {
                           return CheckboxListTile(
-                              secondary: SizedBox(height: 35, width: 45, child: Image.asset(getFlagImageAssetPath(model.filteredCurrencies[index].isoCode!))),
-                              title: Text(model.filteredCurrencies[index].currencyCode!),
+                              secondary: SizedBox(
+                                  height: 35,
+                                  width: 45,
+                                  child: Image.asset(
+                                      getFlagImageAssetPath(model
+                                          .filteredCurrencies[index].isoCode!),
+                                      errorBuilder: (context, error,
+                                              stackTrace) =>
+                                          Container(
+                                            height: width * 0.083,
+                                            width: width * 0.083,
+                                            decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                    color: Colors.grey.shade400,
+                                                    width: 1)),
+                                            child: Center(
+                                              child: Text(model
+                                                      .filteredCurrencies[index]
+                                                      .isoCode!
+                                                      .isEmpty
+                                                  ? '0'
+                                                  : model
+                                                      .filteredCurrencies[index]
+                                                      .isoCode![0]),
+                                            ),
+                                          ))),
+                              title: Text(model
+                                  .filteredCurrencies[index].currencyCode!),
                               subtitle:
                                   Text(model.filteredCurrencies[index].name!),
                               value: model.filteredCurrencies[index].isPicked,
                               onChanged: (value) {
                                 setState(() {
-                                  if (model.filteredCurrencies[index].isPicked) {
+                                  if (model
+                                      .filteredCurrencies[index].isPicked) {
                                     model.filteredCurrencies[index].isPicked =
                                         false;
-                                    itemsForReturn
-                                        .remove(model.filteredCurrencies[index]);
+                                    itemsForReturn.remove(
+                                        model.filteredCurrencies[index]);
                                   } else {
                                     model.filteredCurrencies[index].isPicked =
                                         true;
@@ -95,10 +126,6 @@ class CurrencyListControllerState extends State<CurrencyListController> {
           ),
         ));
   }
-    static String getFlagImageAssetPath(String isoCode) {
-    return "assets/${isoCode.toLowerCase()}.png";
-  }
-
 }
 
 class SearchDataModel extends ChangeNotifier {
@@ -107,8 +134,7 @@ class SearchDataModel extends ChangeNotifier {
 
   SearchDataModel() {
     countryList.forEach((value) {
-      currenciesList.add(
-          value);
+      currenciesList.add(value);
     });
     filteredCurrencies = currenciesList;
   }
@@ -117,4 +143,17 @@ class SearchDataModel extends ChangeNotifier {
       return currency.name!.toLowerCase().contains(search.toLowerCase());
     }).toList();
   }
+}
+
+String getFlagImageAssetPath(String assetSymbol) {
+  var updatedName = assetSymbol;
+  if (updatedName.toLowerCase().contains('usdt')) {
+    updatedName = updatedName.substring(0, updatedName.length - 4);
+  }
+
+  if (updatedName.toLowerCase().contains('usd')) {
+    updatedName = updatedName.substring(0, updatedName.length - 3);
+  }
+
+  return "assets/${updatedName.toLowerCase()}.png";
 }

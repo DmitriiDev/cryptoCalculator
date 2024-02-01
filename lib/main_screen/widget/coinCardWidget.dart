@@ -1,4 +1,5 @@
 import 'package:cryptocalc/crypto_coins/model/exchangeScreenCoinModel.dart';
+import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:flutter/material.dart';
 
 Widget coinCard({
@@ -31,8 +32,8 @@ Widget coinCard({
             children: [
               Row(
                 children: [
-                  Image.network(
-                    coin.image,
+                  Image.asset(
+                    getFlagImageAssetPath(coin.symbol.toLowerCase()),
                     height: width * 0.085,
                     width: width * 0.085,
                     fit: BoxFit.fill,

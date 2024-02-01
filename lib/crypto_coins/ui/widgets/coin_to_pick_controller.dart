@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cryptocalc/crypto_coins/model/coinListCoinBaseModel.dart';
 import 'package:cryptocalc/crypto_coins/network/coinBaseNeteworkManager.dart';
+import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +25,8 @@ class CryptoListControllerState extends State<CryptoListController> {
 
   @override
   Widget build(BuildContext context) {
+      final height = MediaQuery.of(context).size.height;
+  final width = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
             title: const Text('Crypto Assets'),
@@ -77,6 +80,34 @@ class CryptoListControllerState extends State<CryptoListController> {
                               itemCount: model.filteredCryptoAssets.length,
                               itemBuilder: (BuildContext context, index) {
                                 return CheckboxListTile(
+                                    secondary: SizedBox(
+                                        height: 35,
+                                        width: 45,
+                                        child: Image.asset(
+                                            getFlagImageAssetPath(model
+                                                .filteredCryptoAssets[index]
+                                                .id),
+                                                         errorBuilder: (context, error,
+                                              stackTrace) =>
+                                          Container(
+                                            height: height * 0.083,
+                                            width: width * 0.083,
+                                            decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                    color: Colors.grey.shade400,
+                                                    width: 1)),
+                                            child: Center(
+                                              child: Text(model
+                                                      .filteredCryptoAssets[index]
+                                                      .name
+                                                      .isEmpty
+                                                  ? '0'
+                                                  : model
+                                                      .filteredCryptoAssets[index]
+                                                      .name[0]),
+                                            ),
+                                          ))),
                                     title: Text(
                                         model.filteredCryptoAssets[index].name),
                                     subtitle: Text(
