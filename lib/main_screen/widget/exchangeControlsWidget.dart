@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:cryptocalc/currency/model/country.dart';
-import 'package:cryptocalc/currency/model/currency_to_pick_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
 import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
@@ -18,7 +17,8 @@ class ExchangeControlsWidget extends StatefulWidget {
 }
 
 class ExchangeControlState extends State<ExchangeControlsWidget> {
-  String currencyText = "Currency";
+  String currencyText = "USD";
+  String currencyFlag = "us";
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,16 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
               onPressed: () {
                 navigateToCurrencyList(context);
               },
-              child: Text(currencyText)),
+              child: Row(
+                children: [
+                  SizedBox(
+                      width: 25,
+                      height: 10,
+                      child: Image.asset(
+                          getFlagImageAssetPath(currencyFlag.toLowerCase()))),
+                  Text(currencyText),
+                ],
+              )),
           const SizedBox(width: 16.0),
         ],
       ),
@@ -47,6 +56,7 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
       MaterialPageRoute(builder: (context) => const CurrencyListController()),
     ).then((value) async {
       currencyText = (value as List<Country>).first.currencyCode!;
+      currencyFlag = value.first.isoCode!;
       context.read<ExchangeModel>().toExchange(currencyText);
       setState(() {});
     });
@@ -78,9 +88,6 @@ class ExchangeModel extends ChangeNotifier {
     return _inputAmount;
   }
 
-  // set firstNumber(String value) =>
-  //     _exchangedAmount = double.tryParse(value) ?? 1.0;
-
   void toExchange(String currencyCod) async {
     final chartData = await YahooFinanceApi.fetchChartData('$currencyCod=X');
     final rate = YahooFinanceStockResponse.fromJson(chartData);
@@ -97,13 +104,13 @@ class ExchangeModel extends ChangeNotifier {
     _inputAmount = amount;
     _exchangedAmount = _currencyRate * amount;
     notifyListeners();
-    print("setAmount ${_exchangedAmount}");
+    // print("setAmount ${_exchangedAmount}");
   }
 
   void setRate(double rate) {
     _currencyRate = rate;
     notifyListeners();
-    print("rate ${_currencyRate}");
+    // print("rate ${_currencyRate}");
   }
 
   @override

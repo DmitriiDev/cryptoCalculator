@@ -1,17 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-// import 'package:country_currency_pickers/country.dart';
-// import 'package:country_currency_pickers/country_picker_cupertino.dart';
 import 'package:cryptocalc/crypto_coins/model/binanceCoinModel.dart';
 import 'package:cryptocalc/crypto_coins/model/exchangeScreenCoinModel.dart';
 import 'package:cryptocalc/currency/model/country.dart';
-// import 'package:cryptocalc/currency/model/currency_to_pick_model.dart';
 import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:cryptocalc/main_screen/widget/exchangeControlsWidget.dart';
-import 'package:cryptocalc/testTickerSearch.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypto_market/Crypto_Market/Model/coin_model.dart';
 import 'package:cryptocalc/crypto_coins/ui/widgets/coin_to_pick_controller.dart';
@@ -151,7 +146,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
                                 pairWith:
                                     context.watch<ExchangeModel>().getpairWith,
                                 rate: model.getCurrencyRate,
-                                type: snapshot.data![index].currency,
+                                type: snapshot.data![index].currency, currenycCode: snapshot.data![index].shortName.toUpperCase(),
                               );
                             }),
                       ),

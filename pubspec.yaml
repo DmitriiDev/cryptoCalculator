@@ -36,7 +36,6 @@ dependencies:
   cupertino_icons: ^1.0.2
   crypto_market: ^0.0.3
   money2: ^4.0.0
-  live_currency_rate: ^1.0.3
   provider: ^6.1.1
   cached_network_image: ^3.3.1
   http: ^0.13.6

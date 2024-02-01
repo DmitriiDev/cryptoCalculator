@@ -459,14 +459,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
-  live_currency_rate:
-    dependency: "direct main"
-    description:
-      name: live_currency_rate
-      sha256: f6eafbe87cbfaa6915f568af6fdcd70a798686e004281d2b8771e2ca180cc3be
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.3"
   logging:
     dependency: transitive
     description:

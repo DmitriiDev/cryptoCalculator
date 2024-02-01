@@ -1,4 +1,6 @@
 import 'package:cryptocalc/crypto_coins/model/exchangeScreenCoinModel.dart';
+import 'package:cryptocalc/currency/model/country.dart';
+import 'package:cryptocalc/currency/model/currency_symbol.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:flutter/material.dart';
 
@@ -8,15 +10,16 @@ Widget coinCard({
   required String pairWith,
   required double amount,
   required double rate,
-  required bool type
+  required bool type,
+  required String currenycCode
 }) {
   double oldPrice = coin.lastPrice.isEmpty
       ? double.parse(coin.price)
       : double.parse(coin.lastPrice);
   coin.lastPrice = coin.price;
-  print('coin.price ${coin.price}');
-  print('amount $amount');
-  print('rate $rate');
+  // print('coin.price ${coin.price}');
+  // print('amount $amount');
+  // print('rate $rate');
   final height = MediaQuery.of(context).size.height;
   final width = MediaQuery.of(context).size.width;
   return Column(
@@ -91,27 +94,28 @@ Widget coinCard({
               ),
               SizedBox(
                 width: width * 0.22,
-                child: Text(
-                  // coin.pairWith.toLowerCase() == 'inr'
-                  //     ? (rate / (double.parse((coin.price)) * amount))
-                  //         .toStringAsFixed(coin.decimalCurrency)
-                  //     : (double.parse(coin.price) * amount)
-                  //         .toStringAsFixed(coin.decimalCurrency),
-                  type ? ((double.parse((coin.price)) * amount) / rate)
-                      .toStringAsFixed(coin.decimalCurrency) : 
-                      ((double.parse((coin.price)) * amount) * rate)
-                      .toStringAsFixed(coin.decimalCurrency),
-                  textAlign: TextAlign.end,
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: double.parse(coin.price) > oldPrice
-                        ? Colors.lightGreen
-                        : double.parse(coin.price) < oldPrice
-                            ? Colors.red
-                            : null,
-                    fontWeight: FontWeight.w700,
-                  ),
+                child: Row(
+                  children: [
+                    Text(currencySymbolMap[currenycCode] ?? ''),
+                    const SizedBox(width: 5,),
+                    Text(
+                      type ? ((double.parse((coin.price)) * amount) / rate)
+                          .toStringAsFixed(coin.decimalCurrency) : 
+                          ((double.parse((coin.price)) * amount) * rate)
+                          .toStringAsFixed(coin.decimalCurrency),
+                      textAlign: TextAlign.end,
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: double.parse(coin.price) > oldPrice
+                            ? Colors.lightGreen
+                            : double.parse(coin.price) < oldPrice
+                                ? Colors.red
+                                : null,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
