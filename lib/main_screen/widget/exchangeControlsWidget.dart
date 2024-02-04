@@ -22,31 +22,153 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+
     return Column(children: [
-      Row(
-        children: [
-          const Expanded(
-            child: InputAmountWidget(),
-          ),
-          const SizedBox(width: 16.0),
-          ElevatedButton(
-              onPressed: () {
-                navigateToCurrencyList(context);
-              },
-              child: Row(
-                children: [
-                  SizedBox(
-                      width: 25,
-                      height: 10,
-                      child: Image.asset(
-                          getFlagImageAssetPath(currencyFlag.toLowerCase()))),
-                  Text(currencyText),
-                ],
-              )),
-          const SizedBox(width: 16.0),
-        ],
+      Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(234, 234, 234, 236),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  height: height * 0.12,
+                  child: Column(
+                    children: [
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      const Text(
+                        "Convert",
+                        style: TextStyle(
+                            fontWeight: FontWeight.normal, color: Colors.grey),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      SizedBox(
+                          height: height * 0.05, child: const InputAmountWidget()),
+                      const Text(
+                        "Amount",
+                        style: TextStyle(
+                            fontWeight: FontWeight.normal, color: Colors.grey, fontSize: 13),
+                      ),
+                    ],
+                  )),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: InkWell(
+                  onTap: () {
+                    navigateToCurrencyList(context);
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    height: height * 0.12,
+                    padding: const EdgeInsets.only(
+                        top: 8, bottom: 4, right: 8, left: 8),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(234, 234, 234, 236),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "To",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.grey),
+                        ),
+                        SizedBox(
+                          height: height * 0.05,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                  width: 25,
+                                  height: 20,
+                                  child: Image.asset(getFlagImageAssetPath(
+                                      currencyFlag.toLowerCase()))),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(currencyText,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18)),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          "1＄ = ${context.watch<ExchangeModel>().getCurrencyRate}€",
+                          style: const TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.grey,
+                              fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  navigateToCurrencyList(context);
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  height: height * 0.12,
+                  padding: const EdgeInsets.only(
+                      top: 8, bottom: 4, right: 8, left: 8),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(234, 234, 234, 236),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "For",
+                        style: TextStyle(
+                            fontWeight: FontWeight.normal, color: Colors.grey),
+                      ),
+                      SizedBox(
+                        height: height * 0.05,
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("15",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 18)),
+                          ],
+                        ),
+                      ),
+                      const Text(
+                        "Assets",
+                        style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.grey,
+                            fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // ),
+            ),
+          ],
+        ),
       ),
-      Text('${context.watch<ExchangeModel>().getCurrencyRate}'),
     ]);
   }
 
@@ -69,7 +191,7 @@ class ExchangeModel extends ChangeNotifier {
   }
   double _exchangedAmount = 1.0;
   double _inputAmount = 1.0;
-  String _pairWith = '';
+  String _pairWith = 'USD';
   double _currencyRate = 1.0;
 
   double get getCurrencyRate {
@@ -94,7 +216,6 @@ class ExchangeModel extends ChangeNotifier {
 
     _exchangedAmount =
         rate.chart.result.first.meta.previousClose * _inputAmount;
-    // _currencyRate = rate.chart.result.first.meta.previousClose;
     _pairWith = rate.chart.result.first.meta.symbol;
     setRate(rate.chart.result.first.meta.previousClose);
     notifyListeners();

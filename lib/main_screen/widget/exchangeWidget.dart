@@ -7,6 +7,7 @@ import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:cryptocalc/main_screen/widget/exchangeControlsWidget.dart';
+import 'package:floating_action_bubble/floating_action_bubble.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypto_market/Crypto_Market/Model/coin_model.dart';
 import 'package:cryptocalc/crypto_coins/ui/widgets/coin_to_pick_controller.dart';
@@ -26,7 +27,8 @@ class ExchangFullScreenWidget extends StatefulWidget {
       _ExchangFullScreenWidgetState();
 }
 
-class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
+class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
+    with SingleTickerProviderStateMixin {
   final model = ExchangeModel();
   List<ExchangeScreenCoinModel> allCoinsList = <ExchangeScreenCoinModel>[];
   List<String> tickerList = [];
@@ -44,12 +46,23 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
   Map<String, String> tickers = <String, String>{};
   List<ExchangeScreenCoinModel> stocksData = [];
   List<ExchangeScreenCoinModel> currencyData = [];
+  late Animation<double> _animation;
+  late AnimationController _animationController;
 
   @override
   void initState() {
     fetchCoinListFromBinance();
     super.initState();
     subscribeToCoins(tickerList, names);
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+
+    final curvedAnimation =
+        CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
+    _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
   }
 
   @override
@@ -65,25 +78,40 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
                   appBar: AppBar(
                     title: const Text('Coin Exchange'),
                   ),
-                  body: Center(
-                      child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.8,
-                    child: Column(children: [
-                      ExchangeControlsWidget(model.getCurrencyRate),
-                      Row(
-                        children: [
-                          ElevatedButton(
-                              onPressed: () {
-                                _navigateAndDisplaySelection(context);
-                              },
-                              child: const Text("Coins")),
-                          ElevatedButton(
-                              onPressed: () {
-                                navigateToCurrencyList(context);
-                              },
-                              child: const Text("Currencies")),
-                          ElevatedButton(
-                              onPressed: () async {
+                  floatingActionButtonLocation:
+                      FloatingActionButtonLocation.endFloat,
+                  floatingActionButton: FloatingActionBubble(
+                    items: <Bubble>[
+                      Bubble(
+                        title: "Currency",
+                        iconColor: Colors.white,
+                        bubbleColor: Colors.blue,
+                        icon: Icons.currency_exchange,
+                        titleStyle:
+                            const TextStyle(fontSize: 16, color: Colors.white),
+                        onPress: () {
+                            navigateToCurrencyList(context);
+                        },
+                      ),
+                      Bubble(
+                        title: "Crypto",
+                        iconColor: Colors.white,
+                        bubbleColor: Colors.blue,
+                        icon: Icons.currency_bitcoin_rounded,
+                        titleStyle:
+                            const TextStyle(fontSize: 16, color: Colors.white),
+                        onPress: () {
+                          _navigateAndDisplayCryptoCoinSelection(context);
+                        },
+                      ),
+                      Bubble(
+                        title: "Stocks",
+                        iconColor: Colors.white,
+                        bubbleColor: Colors.blue,
+                        icon: Icons.candlestick_chart,
+                        titleStyle:
+                            const TextStyle(fontSize: 16, color: Colors.white),
+                                                      onPress: () async {
                                 stockTicker = await showSearch(
                                   context: context,
                                   delegate: TickerSearch(
@@ -129,10 +157,85 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
                                   _dataStreamController.sink.add(stocksData);
                                 });
                               },
-                              child: const Text("Stocks"))
-                        ],
+
                       ),
-                      const SizedBox(height: 20),
+                    ],
+
+                    animation: _animation,
+                    onPress: () => _animationController.isCompleted
+                        ? _animationController.reverse()
+                        : _animationController.forward(),
+                    iconColor: Colors.blue,
+                    iconData: Icons.add,
+                    backGroundColor: Colors.white,
+                  ),
+                  body: Center(
+                      child: SizedBox(
+                    child: Column(children: [
+                      ExchangeControlsWidget(model.getCurrencyRate),
+                      // Row(
+                      //   children: [
+                      //     ElevatedButton(
+                      //         onPressed: () {
+                      //           _navigateAndDisplayCryptoCoinSelection(context);
+                      //         },
+                      //         child: const Text("Coins")),
+                      //     ElevatedButton(
+                      //         onPressed: () {
+                      //           navigateToCurrencyList(context);
+                      //         },
+                      //         child: const Text("Currencies")),
+                      //     ElevatedButton(
+                      //         onPressed: () async {
+                      //           stockTicker = await showSearch(
+                      //             context: context,
+                      //             delegate: TickerSearch(
+                      //               searchFieldLabel: 'Search ticker',
+                      //               suggestions: [
+                      //                 TickerSuggestion(
+                      //                   const Icon(Icons.view_headline),
+                      //                   'Main',
+                      //                   TickersList.main,
+                      //                 ),
+                      //                 TickerSuggestion(
+                      //                   const Icon(Icons.business_sharp),
+                      //                   'Companies',
+                      //                   TickersList.companies,
+                      //                 ),
+                      //                 TickerSuggestion(
+                      //                   const Icon(Icons
+                      //                       .precision_manufacturing_outlined),
+                      //                   'Sectors',
+                      //                   TickersList.sectors,
+                      //                 ),
+                      //                 TickerSuggestion(
+                      //                   const Icon(Icons.workspaces_outline),
+                      //                   'Futures',
+                      //                   TickersList.futures,
+                      //                 ),
+                      //                 TickerSuggestion(
+                      //                   const Icon(
+                      //                       Icons.account_balance_outlined),
+                      //                   'Bonds',
+                      //                   TickersList.bonds,
+                      //                 ),
+                      //               ],
+                      //             ),
+                      //           ).then((value) {
+                      //             value!
+                      //                 .map((e) => tickers[e.symbol] =
+                      //                     e.description ?? "")
+                      //                 .toList();
+                      //             getStockData(tickers);
+                      //           });
+                      //           setState(() {
+                      //             _dataStreamController.sink.add(stocksData);
+                      //           });
+                      //         },
+                      //         child: const Text("Stocks"))
+                      //   ],
+                      // ),
+                      const SizedBox(height: 5),
                       Expanded(
                         child: ListView.builder(
                             padding: EdgeInsets.zero,
@@ -146,7 +249,9 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
                                 pairWith:
                                     context.watch<ExchangeModel>().getpairWith,
                                 rate: model.getCurrencyRate,
-                                type: snapshot.data![index].currency, currenycCode: snapshot.data![index].shortName.toUpperCase(),
+                                type: snapshot.data![index].currency,
+                                currenycCode: snapshot.data![index].shortName
+                                    .toUpperCase(),
                               );
                             }),
                       ),
@@ -163,7 +268,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
     return a.compareTo(b);
   }
 
-  Future<void> _navigateAndDisplaySelection(BuildContext context) async {
+  Future<void> _navigateAndDisplayCryptoCoinSelection(BuildContext context) async {
     channelHome.sink.close();
     await Navigator.push(
       context,
@@ -172,12 +277,13 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
       // print(coinList.first.symbol);
       tickerList = [];
       allCoinsList = [];
-      for (var i in (value as List<String>)) {
-        tickerList.add('${i.toLowerCase()}@ticker');
-      }
+      var returnData = (value as Map<String, String>);
+
+      returnData.forEach(
+          (key, value) => tickerList.add('${key.toLowerCase()}@ticker'));
       coinList = coinList
           .where((element) =>
-            value.contains(element.symbol.toUpperCase()))
+              returnData.keys.contains(element.symbol.toUpperCase()))
           .toList();
       // print(coinList.first.symbol);
       for (var c in coinList) {
@@ -196,9 +302,10 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
             decimalCurrency: 3,
             currency: false));
       }
+
       // print("tickerList ${tickerList.length}");
       // print("value is ${value}");
-      subscribeToCoins(tickerList, value);
+      subscribeToCoins(tickerList, returnData.keys.toList());
     });
   }
 
@@ -209,7 +316,6 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
     ).then((value) {
       getCurrencyData(value);
     });
-
   }
 
   Future<void> fetchCoinListFromBinance() async {
@@ -261,13 +367,13 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget> {
         stocksData.add(ExchangeScreenCoinModel(
             id: "",
             image: "",
-            name: key,
-            shortName: value,
+            name: value,
+            shortName: key,
             price: '${result.endPrice}',
             lastPrice: '0.0',
             percentage: '0.0',
             symbol: key,
-            pairWith: "USDT",
+            pairWith: "USD",
             highDay: '',
             lowDay: '',
             decimalCurrency: 3,

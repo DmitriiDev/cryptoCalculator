@@ -16,7 +16,8 @@ class CryptoListControllerState extends State<CryptoListController> {
   final TextEditingController searchController = TextEditingController();
   late Future<List<CryptoAsset>> cryptoAssetsFuture;
   final model = SearchDataModel();
-  List<String> itemsForReturn = [];
+  // <String : String> itemsForReturn = [];
+  Map<String, String> itemsForReturn = {};
 
   @override
   void initState() {
@@ -25,8 +26,8 @@ class CryptoListControllerState extends State<CryptoListController> {
 
   @override
   Widget build(BuildContext context) {
-      final height = MediaQuery.of(context).size.height;
-  final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
             title: const Text('Crypto Assets'),
@@ -38,9 +39,6 @@ class CryptoListControllerState extends State<CryptoListController> {
                   onPressed: () {
                     Navigator.pop(context, itemsForReturn);
                   },
-                ),
-                const SizedBox(
-                  width: 16,
                 ),
               ],
             )),
@@ -87,27 +85,30 @@ class CryptoListControllerState extends State<CryptoListController> {
                                             getFlagImageAssetPath(model
                                                 .filteredCryptoAssets[index]
                                                 .id),
-                                                         errorBuilder: (context, error,
-                                              stackTrace) =>
-                                          Container(
-                                            height: height * 0.083,
-                                            width: width * 0.083,
-                                            decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                    color: Colors.grey.shade400,
-                                                    width: 1)),
-                                            child: Center(
-                                              child: Text(model
-                                                      .filteredCryptoAssets[index]
-                                                      .name
-                                                      .isEmpty
-                                                  ? '0'
-                                                  : model
-                                                      .filteredCryptoAssets[index]
-                                                      .name[0]),
-                                            ),
-                                          ))),
+                                            errorBuilder: (context, error,
+                                                    stackTrace) =>
+                                                Container(
+                                                  height: height * 0.083,
+                                                  width: width * 0.083,
+                                                  decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                          color: Colors
+                                                              .grey.shade400,
+                                                          width: 1)),
+                                                  child: Center(
+                                                    child: Text(model
+                                                            .filteredCryptoAssets[
+                                                                index]
+                                                            .name
+                                                            .isEmpty
+                                                        ? '0'
+                                                        : model
+                                                            .filteredCryptoAssets[
+                                                                index]
+                                                            .name[0]),
+                                                  ),
+                                                ))),
                                     title: Text(
                                         model.filteredCryptoAssets[index].name),
                                     subtitle: Text(
@@ -125,8 +126,10 @@ class CryptoListControllerState extends State<CryptoListController> {
                                         } else {
                                           model.filteredCryptoAssets[index]
                                               .isTracked = true;
-                                          itemsForReturn.add(
-                                              "${model.filteredCryptoAssets[index].id}USDT");
+                                          itemsForReturn[
+                                                  "${model.filteredCryptoAssets[index].id}USDT"] =
+                                              model.filteredCryptoAssets[index]
+                                                  .id;
                                         }
                                       });
                                     });

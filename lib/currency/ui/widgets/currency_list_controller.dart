@@ -39,9 +39,6 @@ class CurrencyListControllerState extends State<CurrencyListController> {
                     Navigator.pop(context, itemsForReturn);
                   },
                 ),
-                const SizedBox(
-                  width: 16,
-                ),
               ],
             )),
         body: ChangeNotifierProvider.value(

@@ -11,17 +11,23 @@ class InputAmountWidget extends StatefulWidget {
 }
 
 class InputAmountWidgetState extends State<InputAmountWidget> {
-  final TextEditingController _textController = TextEditingController();
+  final TextEditingController _textController = TextEditingController(text: "1");
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-        // decoration: const InputDecoration(border: OutlineInputBorder()),
-        onChanged: (String value) {
-          context
-              .read<ExchangeModel>()
-              .setAmount(double.tryParse(value) ?? 1.0);
-        });
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: TextField(
+        controller: _textController,
+        textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold), // Set the font size
+          decoration: const InputDecoration(border: InputBorder.none),
+          onChanged: (String value) {
+            context
+                .read<ExchangeModel>()
+                .setAmount(double.tryParse(value) ?? 1.0);
+          }),
+    );
   }
 
   @override
