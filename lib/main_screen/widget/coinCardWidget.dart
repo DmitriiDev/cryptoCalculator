@@ -41,20 +41,22 @@ Widget coinCard(
             children: [
               Row(
                 children: [
-                  Image.asset(
-                    getFlagImageAssetPath(coin.symbol.toLowerCase()),
-                    height: width * 0.085,
-                    width: width * 0.085,
-                    fit: BoxFit.fill,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      height: width * 0.083,
-                      width: width * 0.083,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                              color: Colors.grey.shade400, width: 1)),
-                      child: Center(
-                        child: Text(coin.name.isEmpty ? '0' : coin.name[0]),
+                  ClipOval(
+                    child: Image.asset(
+                      getFlagImageAssetPath(coin.symbol.toLowerCase()),
+                      height: width * 0.085,
+                      width: width * 0.085,
+                      fit: BoxFit.fill,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        height: width * 0.083,
+                        width: width * 0.083,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: Colors.grey.shade400, width: 1)),
+                        child: Center(
+                          child: Text(coin.name.isEmpty ? '0' : coin.name[0]),
+                        ),
                       ),
                     ),
                   ),

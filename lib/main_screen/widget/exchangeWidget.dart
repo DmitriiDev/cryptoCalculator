@@ -90,7 +90,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                         titleStyle:
                             const TextStyle(fontSize: 16, color: Colors.white),
                         onPress: () {
-                            navigateToCurrencyList(context);
+                          navigateToCurrencyList(context);
                         },
                       ),
                       Bubble(
@@ -111,56 +111,53 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                         icon: Icons.candlestick_chart,
                         titleStyle:
                             const TextStyle(fontSize: 16, color: Colors.white),
-                                                      onPress: () async {
-                                stockTicker = await showSearch(
-                                  context: context,
-                                  delegate: TickerSearch(
-                                    searchFieldLabel: 'Search ticker',
-                                    suggestions: [
-                                      TickerSuggestion(
-                                        const Icon(Icons.view_headline),
-                                        'Main',
-                                        TickersList.main,
-                                      ),
-                                      TickerSuggestion(
-                                        const Icon(Icons.business_sharp),
-                                        'Companies',
-                                        TickersList.companies,
-                                      ),
-                                      TickerSuggestion(
-                                        const Icon(Icons
-                                            .precision_manufacturing_outlined),
-                                        'Sectors',
-                                        TickersList.sectors,
-                                      ),
-                                      TickerSuggestion(
-                                        const Icon(Icons.workspaces_outline),
-                                        'Futures',
-                                        TickersList.futures,
-                                      ),
-                                      TickerSuggestion(
-                                        const Icon(
-                                            Icons.account_balance_outlined),
-                                        'Bonds',
-                                        TickersList.bonds,
-                                      ),
-                                    ],
-                                  ),
-                                ).then((value) {
-                                  value!
-                                      .map((e) => tickers[e.symbol] =
-                                          e.description ?? "")
-                                      .toList();
-                                  getStockData(tickers);
-                                });
-                                setState(() {
-                                  _dataStreamController.sink.add(stocksData);
-                                });
-                              },
-
+                        onPress: () async {
+                          stockTicker = await showSearch(
+                            context: context,
+                            delegate: TickerSearch(
+                              searchFieldLabel: 'Search ticker',
+                              suggestions: [
+                                TickerSuggestion(
+                                  const Icon(Icons.view_headline),
+                                  'Main',
+                                  TickersList.main,
+                                ),
+                                TickerSuggestion(
+                                  const Icon(Icons.business_sharp),
+                                  'Companies',
+                                  TickersList.companies,
+                                ),
+                                TickerSuggestion(
+                                  const Icon(
+                                      Icons.precision_manufacturing_outlined),
+                                  'Sectors',
+                                  TickersList.sectors,
+                                ),
+                                TickerSuggestion(
+                                  const Icon(Icons.workspaces_outline),
+                                  'Futures',
+                                  TickersList.futures,
+                                ),
+                                TickerSuggestion(
+                                  const Icon(Icons.account_balance_outlined),
+                                  'Bonds',
+                                  TickersList.bonds,
+                                ),
+                              ],
+                            ),
+                          ).then((value) {
+                            value!
+                                .map((e) =>
+                                    tickers[e.symbol] = e.description ?? "")
+                                .toList();
+                            getStockData(tickers);
+                          });
+                          setState(() {
+                            _dataStreamController.sink.add(stocksData);
+                          });
+                        },
                       ),
                     ],
-
                     animation: _animation,
                     onPress: () => _animationController.isCompleted
                         ? _animationController.reverse()
@@ -268,7 +265,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     return a.compareTo(b);
   }
 
-  Future<void> _navigateAndDisplayCryptoCoinSelection(BuildContext context) async {
+  Future<void> _navigateAndDisplayCryptoCoinSelection(
+      BuildContext context) async {
     channelHome.sink.close();
     await Navigator.push(
       context,
@@ -278,7 +276,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
       tickerList = [];
       allCoinsList = [];
       var returnData = (value as Map<String, String>);
-
+      print(returnData);
       returnData.forEach(
           (key, value) => tickerList.add('${key.toLowerCase()}@ticker'));
       coinList = coinList

@@ -18,8 +18,8 @@ class CryptoService {
       List<dynamic> jsonData = json.decode(response.body);
       List<CryptoAsset> cryptoAssets =
           jsonData.map((asset) => CryptoAsset.fromJson(asset)).toList();
-      cryptoAssets
-          .sort((a, b) => a.details.networkConfirmations ?? 0.compareTo(b.details.networkConfirmations ?? 0));
+      // cryptoAssets
+      //     .sort((a, b) => a.details.networkConfirmations ?? 0.compareTo(b.details.networkConfirmations ?? 0));
       return cryptoAssets;
     } else {
       throw Exception('Failed to load crypto assets');

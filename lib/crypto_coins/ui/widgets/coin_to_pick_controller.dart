@@ -18,6 +18,7 @@ class CryptoListControllerState extends State<CryptoListController> {
   final model = SearchDataModel();
   // <String : String> itemsForReturn = [];
   Map<String, String> itemsForReturn = {};
+  String manualAdded = '';
 
   @override
   void initState() {
@@ -46,6 +47,17 @@ class CryptoListControllerState extends State<CryptoListController> {
           value: model,
           child: Column(
             children: [
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Add Manualy Crypto',
+                        hintText: 'Enter a code name of Crypto',
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                      onChanged: (value) {
+                        manualAdded = value;
+                      },
+                    ),
+                    ElevatedButton(onPressed: () => {itemsForReturn['${manualAdded}USDT'] = '$manualAdded'}, child: Text("ADD")),
               TextField(
                 controller: searchController,
                 decoration: const InputDecoration(
