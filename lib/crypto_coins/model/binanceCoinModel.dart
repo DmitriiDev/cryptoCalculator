@@ -4,7 +4,8 @@ class BinanceCoins {
   BinanceCoins({required this.data});
 
   factory BinanceCoins.fromJson(List<dynamic> json) {
-    List<SymbolPrice> symbolPrices = json.map((item) => SymbolPrice.fromJson(item)).toList();
+    List<SymbolPrice> symbolPrices =
+        json.map((item) => SymbolPrice.fromJson(item)).toList();
 
     return BinanceCoins(data: symbolPrices);
   }

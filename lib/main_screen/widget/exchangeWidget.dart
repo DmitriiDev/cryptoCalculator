@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:cryptocalc/crypto_coins/model/binanceCoinModel.dart';
+import 'package:cryptocalc/crypto_coins/model/coin_symbol_name_model.dart';
 import 'package:cryptocalc/crypto_coins/model/exchangeScreenCoinModel.dart';
 import 'package:cryptocalc/currency/model/country.dart';
 import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
@@ -275,35 +276,70 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
       // print(coinList.first.symbol);
       tickerList = [];
       allCoinsList = [];
-      var returnData = (value as Map<String, String>);
-      print(returnData);
-      returnData.forEach(
-          (key, value) => tickerList.add('${key.toLowerCase()}@ticker'));
+      var returnData = (value as List<CoinSymbolNameModel>);
+      // print(returnData.length);
+      List<CoinSymbolNameModel> formateData = [];
+      for (var d in returnData) {
+        print(d.fullName);
+      }
+      returnData.forEach((e) {
+        formateData.add(CoinSymbolNameModel(
+            symbol: '${e.symbol}USDT'.toUpperCase(),
+            fullName: e.fullName,
+            isPicked: true));
+      });
+      // print(formateData.length);
+
+      var onlySymbols = formateData.map((e) => e.symbol).toList();
+
+      // for (var d in formateData) {
+      //   print('${d.fullName} ${d.symbol}');
+      // }
+      formateData.forEach(
+          (value) => tickerList.add('${value.symbol.toLowerCase()}@ticker'));
+      print("coins is ${coinList.length}");
+
       coinList = coinList
-          .where((element) =>
-              returnData.keys.contains(element.symbol.toUpperCase()))
+          .where(
+              (element) => onlySymbols.contains(element.symbol.toUpperCase()))
           .toList();
+
       // print(coinList.first.symbol);
       for (var c in coinList) {
-        allCoinsList.add(ExchangeScreenCoinModel(
-            id: "",
-            image: "",
-            name: c.symbol,
-            shortName: c.symbol,
-            price: c.price,
-            lastPrice: c.price,
-            percentage: '0.0',
-            symbol: c.symbol,
-            pairWith: c.symbol,
-            highDay: '',
-            lowDay: '',
-            decimalCurrency: 3,
-            currency: false));
+        formateData.forEach(
+          (e) {
+            print(e.symbol);
+            print(c.symbol);
+            if (c.symbol.toLowerCase() == e.symbol.toLowerCase()) {
+              tickerList.add('${c.symbol.toLowerCase()}@ticker');
+              print("inner");
+              allCoinsList.add(ExchangeScreenCoinModel(
+                  id: "",
+                  image: "",
+                  name: e.fullName,
+                  shortName: c.symbol,
+                  price: c.price,
+                  lastPrice: c.price,
+                  percentage: '0.0',
+                  symbol: c.symbol,
+                  pairWith: c.symbol,
+                  highDay: '',
+                  lowDay: '',
+                  decimalCurrency: 3,
+                  currency: false));
+            }
+          },
+        );
       }
 
-      // print("tickerList ${tickerList.length}");
-      // print("value is ${value}");
-      subscribeToCoins(tickerList, returnData.keys.toList());
+      print("tickerList ${tickerList.length}");
+      print(tickerList);
+
+      print("coins is ${coinList.length}");
+            print("coins is ${allCoinsList.first.name}");
+
+
+      subscribeToCoins(tickerList, onlySymbols);
     });
   }
 
@@ -334,7 +370,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
               a.price,
             ));
         for (var c in coinList) {
-          tickerList.add('${c.symbol}@ticker');
+          // tickerList.add('${c.symbol}@ticker');
           allCoinsList.add(ExchangeScreenCoinModel(
               id: "",
               image: "",
@@ -442,7 +478,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
 
   subscribeToCoins(
       List<String> tickerList, List<String> coinsToSubscribe) async {
-    allCoinsList = coinsList;
+    // allCoinsList = coinsList;
     connectToServer(tickerList, coinsToSubscribe);
   }
 
@@ -455,7 +491,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     var index = allCoinsList
         .where((element) => names.contains(element.symbol.toUpperCase()))
         .toList();
-    print('stocksData updateCoin ${currencyData.length}');
+    // print('currencyData update ${currencyData.length}');
+
     index.addAll(stocksData);
     index.addAll(currencyData);
 
@@ -463,6 +500,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
       if (i.symbol == coinSymbol) {
         i.price = price;
         i.percentage = coinPercentage;
+        // print(i.name);
       }
     }
     _dataStreamController.sink.add(index);
