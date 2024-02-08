@@ -171,68 +171,6 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                       child: SizedBox(
                     child: Column(children: [
                       ExchangeControlsWidget(model.getCurrencyRate),
-                      // Row(
-                      //   children: [
-                      //     ElevatedButton(
-                      //         onPressed: () {
-                      //           _navigateAndDisplayCryptoCoinSelection(context);
-                      //         },
-                      //         child: const Text("Coins")),
-                      //     ElevatedButton(
-                      //         onPressed: () {
-                      //           navigateToCurrencyList(context);
-                      //         },
-                      //         child: const Text("Currencies")),
-                      //     ElevatedButton(
-                      //         onPressed: () async {
-                      //           stockTicker = await showSearch(
-                      //             context: context,
-                      //             delegate: TickerSearch(
-                      //               searchFieldLabel: 'Search ticker',
-                      //               suggestions: [
-                      //                 TickerSuggestion(
-                      //                   const Icon(Icons.view_headline),
-                      //                   'Main',
-                      //                   TickersList.main,
-                      //                 ),
-                      //                 TickerSuggestion(
-                      //                   const Icon(Icons.business_sharp),
-                      //                   'Companies',
-                      //                   TickersList.companies,
-                      //                 ),
-                      //                 TickerSuggestion(
-                      //                   const Icon(Icons
-                      //                       .precision_manufacturing_outlined),
-                      //                   'Sectors',
-                      //                   TickersList.sectors,
-                      //                 ),
-                      //                 TickerSuggestion(
-                      //                   const Icon(Icons.workspaces_outline),
-                      //                   'Futures',
-                      //                   TickersList.futures,
-                      //                 ),
-                      //                 TickerSuggestion(
-                      //                   const Icon(
-                      //                       Icons.account_balance_outlined),
-                      //                   'Bonds',
-                      //                   TickersList.bonds,
-                      //                 ),
-                      //               ],
-                      //             ),
-                      //           ).then((value) {
-                      //             value!
-                      //                 .map((e) => tickers[e.symbol] =
-                      //                     e.description ?? "")
-                      //                 .toList();
-                      //             getStockData(tickers);
-                      //           });
-                      //           setState(() {
-                      //             _dataStreamController.sink.add(stocksData);
-                      //           });
-                      //         },
-                      //         child: const Text("Stocks"))
-                      //   ],
-                      // ),
                       const SizedBox(height: 5),
                       Expanded(
                         child: ListView.builder(
@@ -260,10 +198,23 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     );
   }
 
-  int comparePrices(String priceA, String priceB) {
-    double a = double.parse(priceA);
-    double b = double.parse(priceB);
-    return a.compareTo(b);
+    Future<void> fetchCoinListFromBinance() async {
+    final response = await http.get(
+      Uri.parse('https://api3.binance.com/api/v3/ticker/price'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      final BinanceCoins apiResponse = BinanceCoins.fromJson(data);
+
+      setState(() {
+        coinList = apiResponse.data
+            .where((element) => element.symbol.contains("USDT"))
+            .toList();
+      });
+    } else {
+      // print('Failed to load coin list: ${response.statusCode}');
+    }
   }
 
   Future<void> _navigateAndDisplayCryptoCoinSelection(
@@ -273,46 +224,26 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
       context,
       MaterialPageRoute(builder: (context) => const CryptoListController()),
     ).then((value) {
-      // print(coinList.first.symbol);
       tickerList = [];
       allCoinsList = [];
       var returnData = (value as List<CoinSymbolNameModel>);
-      // print(returnData.length);
       List<CoinSymbolNameModel> formateData = [];
-      for (var d in returnData) {
-        print(d.fullName);
-      }
-      returnData.forEach((e) {
+      for (var e in returnData) {
         formateData.add(CoinSymbolNameModel(
             symbol: '${e.symbol}USDT'.toUpperCase(),
             fullName: e.fullName,
             isPicked: true));
-      });
-      // print(formateData.length);
+      }
 
       var onlySymbols = formateData.map((e) => e.symbol).toList();
+      for (var value in formateData) {
+        tickerList.add('${value.symbol.toLowerCase()}@ticker');
+      }
 
-      // for (var d in formateData) {
-      //   print('${d.fullName} ${d.symbol}');
-      // }
-      formateData.forEach(
-          (value) => tickerList.add('${value.symbol.toLowerCase()}@ticker'));
-      print("coins is ${coinList.length}");
-
-      coinList = coinList
-          .where(
-              (element) => onlySymbols.contains(element.symbol.toUpperCase()))
-          .toList();
-
-      // print(coinList.first.symbol);
       for (var c in coinList) {
-        formateData.forEach(
-          (e) {
-            print(e.symbol);
-            print(c.symbol);
+        for (var e in formateData) {
             if (c.symbol.toLowerCase() == e.symbol.toLowerCase()) {
               tickerList.add('${c.symbol.toLowerCase()}@ticker');
-              print("inner");
               allCoinsList.add(ExchangeScreenCoinModel(
                   id: "",
                   image: "",
@@ -328,68 +259,71 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                   decimalCurrency: 3,
                   currency: false));
             }
-          },
-        );
+          }
       }
-
-      print("tickerList ${tickerList.length}");
-      print(tickerList);
-
-      print("coins is ${coinList.length}");
-            print("coins is ${allCoinsList.first.name}");
-
-
+      // print("tickerList ${tickerList.length}");
+      // print(tickerList);
+      // print("coins is ${coinList.length}");
+      // print("coins is ${allCoinsList.first.name}");
       subscribeToCoins(tickerList, onlySymbols);
     });
   }
 
-  Future<void> navigateToCurrencyList(BuildContext context) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const CurrencyListController()),
-    ).then((value) {
-      getCurrencyData(value);
+    subscribeToCoins(
+      List<String> tickerList, List<String> coinsToSubscribe) async {
+    allCoinsList += coinsList;
+    connectToServer(tickerList, coinsToSubscribe);
+  }
+
+
+    connectToServer(tickerList, List<String> coinNames) {
+    channelHome = IOWebSocketChannel.connect(Uri.parse(
+      'wss://stream.binance.com:9443/ws/stream?',
+    ));
+    var tickerLowCased =
+        (tickerList as List<String>).map((e) => e.toLowerCase()).toList();
+    var subRequestHome = {
+      'method': "SUBSCRIBE",
+      'params': tickerLowCased,
+      'id': 1,
+    };
+
+    var jsonString = json.encode(subRequestHome);
+    channelHome.sink.add(jsonString);
+    var result = channelHome.stream.transform(
+      StreamTransformer<dynamic, dynamic>.fromHandlers(
+        handleData: (number, sink) {
+          sink.add(number);
+        },
+      ),
+    );
+    result.listen((event) {
+      var snapshot = jsonDecode(event);
+      // print(snapshot);
+      updateCoin(snapshot['s'].toString(), snapshot['c'].toString(),
+          snapshot['P'].toString(), coinNames);
     });
   }
 
-  Future<void> fetchCoinListFromBinance() async {
-    final response = await http.get(
-      Uri.parse('https://api3.binance.com/api/v3/ticker/price'),
-    );
+  void updateCoin(String coinSymbol, String coinPrice, String coinPercentage,
+      List<String> names) async {
+    var price = coinPrice.substring(0, coinPrice.length - 4);
+    var index = allCoinsList
+        .where((element) => names.contains(element.symbol.toUpperCase()))
+        .toList();
+    // print('currencyData update ${currencyData.length}');
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      final BinanceCoins apiResponse = BinanceCoins.fromJson(data);
+    index.addAll(stocksData);
+    index.addAll(currencyData);
 
-      setState(() {
-        coinList = apiResponse.data
-            .where((element) => element.symbol.contains("USDT"))
-            .toList();
-        coinList.sort((a, b) => comparePrices(
-              b.price,
-              a.price,
-            ));
-        for (var c in coinList) {
-          // tickerList.add('${c.symbol}@ticker');
-          allCoinsList.add(ExchangeScreenCoinModel(
-              id: "",
-              image: "",
-              name: c.symbol,
-              shortName: c.symbol,
-              price: c.price,
-              lastPrice: c.price,
-              percentage: '0.0',
-              symbol: c.symbol,
-              pairWith: c.symbol,
-              highDay: '',
-              lowDay: '',
-              decimalCurrency: 3,
-              currency: false));
-        }
-      });
-    } else {
-      // print('Failed to load coin list: ${response.statusCode}');
+    for (var i in index) {
+      if (i.symbol == coinSymbol) {
+        i.price = price;
+        i.percentage = coinPercentage;
+        // print(i.name);
+      }
     }
+    _dataStreamController.sink.add(index);
   }
 
   void getStockData(Map<String, String> stockNames) async {
@@ -419,6 +353,15 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     });
   }
 
+    Future<void> navigateToCurrencyList(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const CurrencyListController()),
+    ).then((value) {
+      getCurrencyData(value);
+    });
+  }
+
   void getCurrencyData(List<Country> currencyNames) async {
     currencyData = [];
     currencyNames.forEach((value) async {
@@ -445,64 +388,5 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
         });
       });
     });
-  }
-
-  connectToServer(tickerList, List<String> coinNames) {
-    channelHome = IOWebSocketChannel.connect(Uri.parse(
-      'wss://stream.binance.com:9443/ws/stream?',
-    ));
-    var tickerLowCased =
-        (tickerList as List<String>).map((e) => e.toLowerCase()).toList();
-    var subRequestHome = {
-      'method': "SUBSCRIBE",
-      'params': tickerLowCased,
-      'id': 1,
-    };
-
-    var jsonString = json.encode(subRequestHome);
-    channelHome.sink.add(jsonString);
-    var result = channelHome.stream.transform(
-      StreamTransformer<dynamic, dynamic>.fromHandlers(
-        handleData: (number, sink) {
-          sink.add(number);
-        },
-      ),
-    );
-    result.listen((event) {
-      var snapshot = jsonDecode(event);
-      // print(snapshot);
-      updateCoin(snapshot['s'].toString(), snapshot['c'].toString(),
-          snapshot['P'].toString(), coinNames);
-    });
-  }
-
-  subscribeToCoins(
-      List<String> tickerList, List<String> coinsToSubscribe) async {
-    // allCoinsList = coinsList;
-    connectToServer(tickerList, coinsToSubscribe);
-  }
-
-  var selectedCurrency = '';
-  List<Coin> selectedCurrencyCoins = <Coin>[];
-
-  void updateCoin(String coinSymbol, String coinPrice, String coinPercentage,
-      List<String> names) async {
-    var price = coinPrice.substring(0, coinPrice.length - 4);
-    var index = allCoinsList
-        .where((element) => names.contains(element.symbol.toUpperCase()))
-        .toList();
-    // print('currencyData update ${currencyData.length}');
-
-    index.addAll(stocksData);
-    index.addAll(currencyData);
-
-    for (var i in index) {
-      if (i.symbol == coinSymbol) {
-        i.price = price;
-        i.percentage = coinPercentage;
-        // print(i.name);
-      }
-    }
-    _dataStreamController.sink.add(index);
   }
 }

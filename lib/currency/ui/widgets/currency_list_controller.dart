@@ -1,7 +1,5 @@
 import 'package:cryptocalc/currency/model/country.dart';
 import 'package:cryptocalc/currency/model/country_list.dart';
-import 'package:cryptocalc/currency/model/currency_to_pick_model.dart';
-import 'package:cryptocalc/currencyCode.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +22,6 @@ class CurrencyListControllerState extends State<CurrencyListController> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
