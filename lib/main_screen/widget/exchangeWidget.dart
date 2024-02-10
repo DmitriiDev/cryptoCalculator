@@ -10,7 +10,6 @@ import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:cryptocalc/main_screen/widget/exchangeControlsWidget.dart';
 import 'package:floating_action_bubble/floating_action_bubble.dart';
 import 'package:http/http.dart' as http;
-import 'package:crypto_market/Crypto_Market/Model/coin_model.dart';
 import 'package:cryptocalc/crypto_coins/ui/widgets/coin_to_pick_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -198,7 +197,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     );
   }
 
-    Future<void> fetchCoinListFromBinance() async {
+  Future<void> fetchCoinListFromBinance() async {
     final response = await http.get(
       Uri.parse('https://api3.binance.com/api/v3/ticker/price'),
     );
@@ -228,6 +227,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
       allCoinsList = [];
       var returnData = (value as List<CoinSymbolNameModel>);
       List<CoinSymbolNameModel> formateData = [];
+      print(value.first.symbol);
       for (var e in returnData) {
         formateData.add(CoinSymbolNameModel(
             symbol: '${e.symbol}USDT'.toUpperCase(),
@@ -242,24 +242,24 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
 
       for (var c in coinList) {
         for (var e in formateData) {
-            if (c.symbol.toLowerCase() == e.symbol.toLowerCase()) {
-              tickerList.add('${c.symbol.toLowerCase()}@ticker');
-              allCoinsList.add(ExchangeScreenCoinModel(
-                  id: "",
-                  image: "",
-                  name: e.fullName,
-                  shortName: c.symbol,
-                  price: c.price,
-                  lastPrice: c.price,
-                  percentage: '0.0',
-                  symbol: c.symbol,
-                  pairWith: c.symbol,
-                  highDay: '',
-                  lowDay: '',
-                  decimalCurrency: 3,
-                  currency: false));
-            }
+          if (c.symbol.toLowerCase() == e.symbol.toLowerCase()) {
+            tickerList.add('${c.symbol.toLowerCase()}@ticker');
+            allCoinsList.add(ExchangeScreenCoinModel(
+                id: "",
+                image: "",
+                name: e.fullName,
+                shortName: c.symbol,
+                price: c.price,
+                lastPrice: c.price,
+                percentage: '0.0',
+                symbol: c.symbol,
+                pairWith: c.symbol,
+                highDay: '',
+                lowDay: '',
+                decimalCurrency: 3,
+                currency: false));
           }
+        }
       }
       // print("tickerList ${tickerList.length}");
       // print(tickerList);
@@ -269,14 +269,13 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     });
   }
 
-    subscribeToCoins(
+  subscribeToCoins(
       List<String> tickerList, List<String> coinsToSubscribe) async {
     allCoinsList += coinsList;
     connectToServer(tickerList, coinsToSubscribe);
   }
 
-
-    connectToServer(tickerList, List<String> coinNames) {
+  connectToServer(tickerList, List<String> coinNames) {
     channelHome = IOWebSocketChannel.connect(Uri.parse(
       'wss://stream.binance.com:9443/ws/stream?',
     ));
@@ -353,7 +352,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     });
   }
 
-    Future<void> navigateToCurrencyList(BuildContext context) async {
+  Future<void> navigateToCurrencyList(BuildContext context) async {
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const CurrencyListController()),

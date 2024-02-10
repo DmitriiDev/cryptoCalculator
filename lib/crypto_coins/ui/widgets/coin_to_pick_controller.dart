@@ -16,10 +16,10 @@ class CryptoListController extends StatefulWidget {
 class CryptoListControllerState extends State<CryptoListController> {
   final TextEditingController searchController = TextEditingController();
   late Future<List<CryptoAsset>> cryptoAssetsFuture;
-
   final model = SearchDataModel();
   List<CoinSymbolNameModel> itemsForReturn = [];
   String manualAdded = '';
+  bool manualSearchBlock = false;
 
   @override
   void initState() {
@@ -28,7 +28,6 @@ class CryptoListControllerState extends State<CryptoListController> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
@@ -49,21 +48,6 @@ class CryptoListControllerState extends State<CryptoListController> {
           child: Column(
             children: [
               TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Add Manualy Crypto',
-                  hintText: 'Enter a code name of Crypto',
-                  prefixIcon: Icon(Icons.search),
-                ),
-                onChanged: (value) {
-                  manualAdded = value;
-                },
-              ),
-              ElevatedButton(
-                  onPressed: () =>
-                      itemsForReturn.add(CoinSymbolNameModel(symbol: manualAdded, fullName: manualAdded, isPicked: true))
-                      ,
-                  child: const Text("ADD")),
-              TextField(
                 controller: searchController,
                 decoration: const InputDecoration(
                   labelText: 'Search Crypto Assets',
@@ -73,74 +57,146 @@ class CryptoListControllerState extends State<CryptoListController> {
                 onChanged: (value) {
                   setState(() {
                     model.setFiltredList(value);
+                    if (model.filtredList.isEmpty) {
+                      manualSearchBlock = true;
+                    } else {
+                      manualSearchBlock = false;
+                    }
                   });
                 },
               ),
-                            Expanded(
-                child: Column(children: [
-                  Expanded(
-                    child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        itemCount: model.filtredList.length,
-                        itemBuilder: (BuildContext context, index) {
-                          return CheckboxListTile(
-                              secondary: SizedBox(
-                                  height: 35,
-                                  width: 45,
-                                  child: Image.asset(
-                                      getFlagImageAssetPath(model
-                                          .filtredList[index].symbol),
-                                      errorBuilder: (context, error,
-                                              stackTrace) =>
-                                          Container(
-                                            height: width * 0.083,
-                                            width: width * 0.083,
-                                            decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                    color: Colors.grey.shade400,
-                                                    width: 1)),
-                                            child: Center(
-                                              child: Text(model
-                                                      .filtredList[index]
-                                                      .symbol
-                                                      .isEmpty
-                                                  ? '0'
-                                                  : model
-                                                      .filtredList[index]
-                                                      .symbol[0]),
-                                            ),
-                                          ))),
-                              title: Text(model
-                                  .filtredList[index].fullName),
-                              subtitle:
-                                  Text(model.filtredList[index].symbol),
-                              value: model.filtredList[index].isPicked,
-                              onChanged: (value) {
-                                setState(() {
-                                  if (model
-                                      .filtredList[index].isPicked) {
-                                    model.filtredList[index].isPicked =
-                                        false;
-                                    itemsForReturn.remove(
-                                        model.filtredList[index]);
-                                  } else {
-                                    model.filtredList[index].isPicked =
-                                        true;
-                                    itemsForReturn
-                                        .add(model.filtredList[index]);
-                                  }
-                                });
-                              });
-                        }),
-                  ),
-                ]),
-              )
+              manualSearchBlock
+                  ? _manualCoinSearchControls(manualAdded, itemsForReturn, context)
+                  : Expanded(
+                      child: Column(children: [
+                        Expanded(
+                          child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              itemCount: model.filtredList.length,
+                              itemBuilder: (BuildContext context, index) {
+                                return CheckboxListTile(
+                                    secondary: SizedBox(
+                                        height: 35,
+                                        width: 45,
+                                        child: Image.asset(
+                                            getFlagImageAssetPath(model
+                                                .filtredList[index].symbol),
+                                            errorBuilder: (context, error,
+                                                    stackTrace) =>
+                                                Container(
+                                                  height: width * 0.083,
+                                                  width: width * 0.083,
+                                                  decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                          color: Colors
+                                                              .grey.shade400,
+                                                          width: 1)),
+                                                  child: Center(
+                                                    child: Text(model
+                                                            .filtredList[index]
+                                                            .symbol
+                                                            .isEmpty
+                                                        ? '0'
+                                                        : model
+                                                            .filtredList[index]
+                                                            .symbol[0]),
+                                                  ),
+                                                ))),
+                                    title:
+                                        Text(model.filtredList[index].fullName),
+                                    subtitle:
+                                        Text(model.filtredList[index].symbol),
+                                    value: model.filtredList[index].isPicked,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        if (model.filtredList[index].isPicked) {
+                                          model.filtredList[index].isPicked =
+                                              false;
+                                          itemsForReturn
+                                              .remove(model.filtredList[index]);
+                                        } else {
+                                          model.filtredList[index].isPicked =
+                                              true;
+                                          itemsForReturn
+                                              .add(model.filtredList[index]);
+                                        }
+                                      });
+                                    });
+                              }),
+                        ),
+                      ]),
+                    )
             ],
           ),
         ));
   }
+}
+
+Widget _manualCoinSearchControls(
+    String manualAdded, List<CoinSymbolNameModel> itemsForReturn, BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(14.0),
+    child: Column(
+      children: [
+        const SizedBox(
+          height: 20,
+        ),
+        const Text(
+          "No coins found",
+          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("1. open binance.com"),
+            Text("2. find listed coins"),
+            Text("3. type coin's symbol manualy below"),
+          ],
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 200,
+              child: TextField(
+                decoration: const InputDecoration(
+                    labelText: 'Add Manualy Coin',
+                    hintText: 'For example: LDO',
+                    border: OutlineInputBorder()),
+                onChanged: (value) {
+                  manualAdded = value;
+                },
+              ),
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  itemsForReturn.add(CoinSymbolNameModel(
+                      symbol: manualAdded,
+                      fullName: manualAdded,
+                      isPicked: true));
+                                          Navigator.pop(context, itemsForReturn);
+                },
+                child: const Text("ADD")),
+          ],
+        ),
+        SizedBox(
+            width: 200,
+            height: 300,
+            child: Image.asset(getFlagImageAssetPath("explainhowtoget"))),
+      ],
+    ),
+  );
 }
 
 class SearchDataModel extends ChangeNotifier {
@@ -148,16 +204,17 @@ class SearchDataModel extends ChangeNotifier {
   List<CoinSymbolNameModel> filtredList = [];
   SearchDataModel() {
     cryptoNetworksMap.forEach((key, value) {
-      allNamesInitData.add(CoinSymbolNameModel(symbol: key, fullName: value, isPicked: false));
+      allNamesInitData.add(
+          CoinSymbolNameModel(symbol: key, fullName: value, isPicked: false));
       filtredList = allNamesInitData;
     });
   }
   void setFiltredList(String search) {
-      filtredList = allNamesInitData.where((cryptoAsset) {
-        return cryptoAsset.fullName
-                .toLowerCase()
-                .contains(search.toLowerCase()) ||
-            cryptoAsset.symbol.toLowerCase().contains(search.toLowerCase());
-      }).toList();
-    }
+    filtredList = allNamesInitData.where((cryptoAsset) {
+      return cryptoAsset.fullName
+              .toLowerCase()
+              .contains(search.toLowerCase()) ||
+          cryptoAsset.symbol.toLowerCase().contains(search.toLowerCase());
+    }).toList();
+  }
 }
