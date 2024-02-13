@@ -1,4 +1,4 @@
-import 'package:cryptocalc/crypto_coins/model/exchangeScreenCoinModel.dart';
+import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
 import 'package:cryptocalc/currency/model/country.dart';
 import 'package:cryptocalc/currency/model/currency_symbol.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
@@ -20,7 +20,7 @@ Widget coinCard(
   String pairText = pairWith.length == 3
       ? pairWith
       : pairWith.replaceAll("USD", "").replaceAll("=X", "");
-  String assetShortName = coin.shortName.replaceAll("USDT", "");
+  String assetShortName = coin.name.replaceAll("USDT", "");
 
   // print('coin.price ${coin.price}');
   // print('amount $amount');

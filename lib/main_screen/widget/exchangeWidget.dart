@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:cryptocalc/crypto_coins/model/binanceCoinModel.dart';
 import 'package:cryptocalc/crypto_coins/model/coin_symbol_name_model.dart';
-import 'package:cryptocalc/crypto_coins/model/exchangeScreenCoinModel.dart';
+import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
 import 'package:cryptocalc/currency/model/country.dart';
 import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
@@ -185,7 +185,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                                     context.watch<ExchangeModel>().getpairWith,
                                 rate: model.getCurrencyRate,
                                 type: snapshot.data![index].currency,
-                                currenycCode: snapshot.data![index].shortName
+                                currenycCode: snapshot.data![index].symbol
                                     .toUpperCase(),
                               );
                             }),
@@ -248,14 +248,10 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                 id: "",
                 image: "",
                 name: e.fullName,
-                shortName: c.symbol,
                 price: c.price,
                 lastPrice: c.price,
-                percentage: '0.0',
                 symbol: c.symbol,
                 pairWith: c.symbol,
-                highDay: '',
-                lowDay: '',
                 decimalCurrency: 3,
                 currency: false));
           }
@@ -318,7 +314,6 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     for (var i in index) {
       if (i.symbol == coinSymbol) {
         i.price = price;
-        i.percentage = coinPercentage;
         // print(i.name);
       }
     }
@@ -335,14 +330,10 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
             id: "",
             image: "",
             name: value,
-            shortName: key,
             price: '${result.endPrice}',
             lastPrice: '0.0',
-            percentage: '0.0',
             symbol: key,
             pairWith: "USD",
-            highDay: '',
-            lowDay: '',
             decimalCurrency: 3,
             currency: false));
         setState(() {
@@ -372,14 +363,10 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
             id: "",
             image: "",
             name: value.name!,
-            shortName: value.currencyCode!,
             price: '${rate.chart.result.first.meta.previousClose}',
             lastPrice: '0.0',
-            percentage: '0.0',
             symbol: value.isoCode!,
             pairWith: "USD",
-            highDay: '',
-            lowDay: '',
             decimalCurrency: 3,
             currency: true));
         setState(() {
