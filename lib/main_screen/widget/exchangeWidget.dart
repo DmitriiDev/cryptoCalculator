@@ -7,6 +7,7 @@ import 'package:cryptocalc/currency/model/country.dart';
 import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
+import 'package:cryptocalc/main.dart';
 import 'package:cryptocalc/main_screen/widget/exchangeControlsWidget.dart';
 import 'package:floating_action_bubble/floating_action_bubble.dart';
 import 'package:http/http.dart' as http;
@@ -53,8 +54,6 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
   void initState() {
     fetchCoinListFromBinance();
     super.initState();
-    subscribeToCoins(tickerList, names);
-
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
@@ -63,6 +62,21 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     final curvedAnimation =
         CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
+    loadData();
+    subscribeToCoins(tickerList, names);
+  }
+
+  void loadData() async {
+    var items = (box.values.toList().reversed.toList()
+        as List<ExchangeScreenCoinModel>);
+    allCoinsList.addAll(items);
+    for (var i in allCoinsList) {
+      tickerList.add('${i.symbol}@ticker'.toLowerCase());
+      names.add(i.symbol);
+    }
+    setState(() {
+      _dataStreamController.sink.add(items);
+    });
   }
 
   @override
@@ -185,8 +199,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                                     context.watch<ExchangeModel>().getpairWith,
                                 rate: model.getCurrencyRate,
                                 type: snapshot.data![index].currency,
-                                currenycCode: snapshot.data![index].symbol
-                                    .toUpperCase(),
+                                currenycCode:
+                                    snapshot.data![index].symbol.toUpperCase(),
                               );
                             }),
                       ),
@@ -222,7 +236,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const CryptoListController()),
-    ).then((value) {
+    ).then((value) async {
       tickerList = [];
       allCoinsList = [];
       var returnData = (value as List<CoinSymbolNameModel>);
@@ -244,7 +258,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
         for (var e in formateData) {
           if (c.symbol.toLowerCase() == e.symbol.toLowerCase()) {
             tickerList.add('${c.symbol.toLowerCase()}@ticker');
-            allCoinsList.add(ExchangeScreenCoinModel(
+            var coin = ExchangeScreenCoinModel(
                 id: "",
                 image: "",
                 name: e.fullName,
@@ -253,10 +267,13 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                 symbol: c.symbol,
                 pairWith: c.symbol,
                 decimalCurrency: 3,
-                currency: false));
+                currency: false);
+            allCoinsList.add(coin);
+            box.add(coin);
           }
         }
       }
+
       // print("tickerList ${tickerList.length}");
       // print(tickerList);
       // print("coins is ${coinList.length}");
@@ -268,6 +285,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
   subscribeToCoins(
       List<String> tickerList, List<String> coinsToSubscribe) async {
     allCoinsList += coinsList;
+    print(names.toString());
+    print(allCoinsList.toString());
     connectToServer(tickerList, coinsToSubscribe);
   }
 
@@ -306,7 +325,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     var index = allCoinsList
         .where((element) => names.contains(element.symbol.toUpperCase()))
         .toList();
-    // print('currencyData update ${currencyData.length}');
+    print('currencyData update ${currencyData.length}');
 
     index.addAll(stocksData);
     index.addAll(currencyData);
@@ -314,7 +333,6 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     for (var i in index) {
       if (i.symbol == coinSymbol) {
         i.price = price;
-        // print(i.name);
       }
     }
     _dataStreamController.sink.add(index);
@@ -326,7 +344,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
       await stockMarketDataService
           .getBackTestResultForSymbol(key)
           .then((result) {
-        stocksData.add(ExchangeScreenCoinModel(
+        var share = ExchangeScreenCoinModel(
             id: "",
             image: "",
             name: value,
@@ -335,7 +353,9 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
             symbol: key,
             pairWith: "USD",
             decimalCurrency: 3,
-            currency: false));
+            currency: false);
+        stocksData.add(share);
+        box.add(share);
         setState(() {
           _dataStreamController.sink.add(stocksData);
         });
@@ -355,11 +375,11 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
   void getCurrencyData(List<Country> currencyNames) async {
     currencyData = [];
     currencyNames.forEach((value) async {
-      print(value.currencyCode);
+      // print(value.currencyCode);
       await YahooFinanceApi.fetchChartData('${value.currencyCode}=X')
           .then((result) {
         final rate = YahooFinanceStockResponse.fromJson(result);
-        currencyData.add(ExchangeScreenCoinModel(
+        var currency = ExchangeScreenCoinModel(
             id: "",
             image: "",
             name: value.name!,
@@ -368,7 +388,9 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
             symbol: value.isoCode!,
             pairWith: "USD",
             decimalCurrency: 3,
-            currency: true));
+            currency: true);
+        currencyData.add(currency);
+        box.add(currency);
         setState(() {
           _dataStreamController.sink.add(currencyData);
         });

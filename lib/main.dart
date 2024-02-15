@@ -1,18 +1,28 @@
+import 'dart:io';
+import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
 import 'package:cryptocalc/main_screen/widget/exchangeControlsWidget.dart';
 import 'package:cryptocalc/main_screen/widget/exchangeWidget.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart';
 
-void main() {
-  runApp( ChangeNotifierProvider(
+late Box box;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Directory directory = await getApplicationDocumentsDirectory();
+  Hive.init(directory.path);
+  Hive.registerAdapter(ExchangeScreenCoinModelAdapter());
+  box = await Hive.openBox<ExchangeScreenCoinModel>('exchangeScreenCoins');
+  runApp(ChangeNotifierProvider(
     create: (context) => ExchangeModel(),
     child: const MyApp(),
-  )
-);
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
