@@ -191,17 +191,35 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                             shrinkWrap: true,
                             itemCount: snapshot.data!.length,
                             itemBuilder: (BuildContext context2, index) {
-                              return coinCard(
-                                context: context2,
-                                coin: snapshot.data![index],
-                                amount: model.getAmountFromInput,
-                                pairWith:
-                                    context.watch<ExchangeModel>().getpairWith,
-                                rate: model.getCurrencyRate,
-                                type: snapshot.data![index].currency,
-                                currenycCode:
-                                    snapshot.data![index].symbol.toUpperCase(),
-                              );
+                              return Dismissible(
+                                  key: Key(snapshot.data![index].symbol),
+                                  background: Container(
+                                    color: Colors.red,
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.only(right: 16.0),
+                                    child: const Icon(Icons.delete,
+                                        color: Colors.white),
+                                  ),
+                                  onDismissed: (direction) {
+                                    setState(() {
+                                      _dataStreamController.sink
+                                          .add(allCoinsList);
+                                      box.delete(allCoinsList[index].key);
+                                      allCoinsList.removeAt(index);
+                                    });
+                                  },
+                                  child: coinCard(
+                                    context: context2,
+                                    coin: snapshot.data![index],
+                                    amount: model.getAmountFromInput,
+                                    pairWith: context
+                                        .watch<ExchangeModel>()
+                                        .getpairWith,
+                                    rate: model.getCurrencyRate,
+                                    type: snapshot.data![index].currency,
+                                    currenycCode: snapshot.data![index].symbol
+                                        .toUpperCase(),
+                                  ));
                             }),
                       ),
                     ]),
@@ -325,7 +343,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     var index = allCoinsList
         .where((element) => names.contains(element.symbol.toUpperCase()))
         .toList();
-    print('currencyData update ${currencyData.length}');
+    // print('currencyData update ${currencyData.length}');
 
     index.addAll(stocksData);
     index.addAll(currencyData);
