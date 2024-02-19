@@ -21,19 +21,20 @@ class ExchangeScreenCoinModelAdapter
       id: fields[0] as String,
       image: fields[1] as String,
       name: fields[2] as String,
+      currencyCode: fields[4] as String,
       price: fields[3] as String,
-      lastPrice: fields[4] as String,
-      symbol: fields[5] as String,
-      pairWith: fields[6] as String,
-      currency: fields[7] as bool,
-      decimalCurrency: fields[8] as int,
+      lastPrice: fields[5] as String,
+      symbol: fields[6] as String,
+      pairWith: fields[7] as String,
+      currency: fields[8] as bool,
+      decimalCurrency: fields[9] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, ExchangeScreenCoinModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -43,14 +44,16 @@ class ExchangeScreenCoinModelAdapter
       ..writeByte(3)
       ..write(obj.price)
       ..writeByte(4)
-      ..write(obj.lastPrice)
+      ..write(obj.currencyCode)
       ..writeByte(5)
-      ..write(obj.symbol)
+      ..write(obj.lastPrice)
       ..writeByte(6)
-      ..write(obj.pairWith)
+      ..write(obj.symbol)
       ..writeByte(7)
-      ..write(obj.currency)
+      ..write(obj.pairWith)
       ..writeByte(8)
+      ..write(obj.currency)
+      ..writeByte(9)
       ..write(obj.decimalCurrency);
   }
 

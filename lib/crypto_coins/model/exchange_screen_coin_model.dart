@@ -17,24 +17,28 @@ class ExchangeScreenCoinModel extends HiveObject {
   late String price;
 
   @HiveField(4)
-  late String lastPrice;
+  late String currencyCode;
 
   @HiveField(5)
-  late String symbol;
+  late String lastPrice;
 
   @HiveField(6)
-  late String pairWith;
+  late String symbol;
 
   @HiveField(7)
-  late bool currency;
+  late String pairWith;
 
   @HiveField(8)
+  late bool currency;
+
+  @HiveField(9)
   late int decimalCurrency;
 
   ExchangeScreenCoinModel({
     required this.id,
     required this.image,
     required this.name,
+    required this.currencyCode,
     required this.price,
     required this.lastPrice,
     required this.symbol,

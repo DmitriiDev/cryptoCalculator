@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
-import 'package:cryptocalc/main_screen/widget/exchangeControlsWidget.dart';
-import 'package:cryptocalc/main_screen/widget/exchangeWidget.dart';
+import 'package:cryptocalc/main_screen/widget/exchange_controls_widget.dart';
+import 'package:cryptocalc/main_screen/widget/exchange_main_screen_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';

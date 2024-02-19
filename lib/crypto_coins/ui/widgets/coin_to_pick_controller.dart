@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cryptocalc/crypto_coins/model/coinListCoinBaseModel.dart';
+import 'package:cryptocalc/crypto_coins/model/coin_list_coin_base_model.dart';
 import 'package:cryptocalc/crypto_coins/model/coin_symbol_name_model.dart';
 import 'package:cryptocalc/crypto_coins/network/list_crypto.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';

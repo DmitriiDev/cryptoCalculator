@@ -1,5 +1,4 @@
 import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
-import 'package:cryptocalc/currency/model/country.dart';
 import 'package:cryptocalc/currency/model/currency_symbol.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
@@ -109,7 +108,8 @@ Widget coinCard(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          amountFormat(coin, amount, rate, type, currenycCode),
+                          amountFormat(
+                              coin, amount, rate, type, currenycCode, pairWith),
                           textAlign: TextAlign.end,
                           maxLines: 1,
                           style: TextStyle(
@@ -144,10 +144,15 @@ Widget coinCard(
 }
 
 String amountFormat(ExchangeScreenCoinModel coin, double amount, double rate,
-    bool type, String currenycCode) {
+    bool type, String currenycCode, String pairWith) {
+    String pairText = pairWith.length == 3
+      ? pairWith
+      : pairWith.replaceAll("USD", "").replaceAll("=X", "");
+
+
   final CurrencyTextInputFormatter formatterCoins = CurrencyTextInputFormatter(
     decimalDigits: 3,
-    symbol: '',
+    symbol: currencySymbolMap[pairText] ?? "",
   );
   final CurrencyTextInputFormatter formatterCurrency =
       CurrencyTextInputFormatter(
@@ -164,7 +169,7 @@ String amountFormat(ExchangeScreenCoinModel coin, double amount, double rate,
 
 String rateExchange(ExchangeScreenCoinModel coin, double amount, double rate,
     bool type, String currenycCode, String pairWith) {
-  String amountText = amountFormat(coin, 1, rate, type, currenycCode);
+  String amountText = amountFormat(coin, 1, rate, type, currenycCode, pairWith);
   String pairText = pairWith.length == 3
       ? pairWith
       : pairWith.replaceAll("USD", "").replaceAll("=X", "");

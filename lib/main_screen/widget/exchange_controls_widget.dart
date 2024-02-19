@@ -3,14 +3,16 @@ import 'package:cryptocalc/currency/model/country.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
 import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
-import 'package:cryptocalc/main_screen/widget/inputAmountWidget.dart';
+import 'package:cryptocalc/main_screen/widget/input_amount_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ExchangeControlsWidget extends StatefulWidget {
-  const ExchangeControlsWidget(this.exchangeRate, {super.key});
+  const ExchangeControlsWidget(this.exchangeRate,
+      {super.key, required this.amountOfAssets});
 
   final double exchangeRate;
+  final int amountOfAssets;
 
   @override
   ExchangeControlState createState() => ExchangeControlState();
@@ -51,11 +53,14 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
                         height: 5,
                       ),
                       SizedBox(
-                          height: height * 0.05, child: const InputAmountWidget()),
+                          height: height * 0.05,
+                          child: const InputAmountWidget()),
                       const Text(
                         "Amount",
                         style: TextStyle(
-                            fontWeight: FontWeight.normal, color: Colors.grey, fontSize: 13),
+                            fontWeight: FontWeight.normal,
+                            color: Colors.grey,
+                            fontSize: 13),
                       ),
                     ],
                   )),
@@ -107,7 +112,7 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
                           ),
                         ),
                         Text(
-                          "1＄ = ${context.watch<ExchangeModel>().getCurrencyRate}€",
+                          "1＄ = ${context.watch<ExchangeModel>().getCurrencyRate}",
                           style: const TextStyle(
                               fontWeight: FontWeight.normal,
                               color: Colors.grey,
@@ -143,12 +148,12 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
                       ),
                       SizedBox(
                         height: height * 0.05,
-                        child: const Row(
+                        child:  Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("15",
-                                style: TextStyle(
+                            Text('${widget.amountOfAssets}',
+                                style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18)),
                           ],
                         ),

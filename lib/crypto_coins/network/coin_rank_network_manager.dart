@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:cryptocalc/crypto_coins/model/coinRankModel.dart';
+import 'package:cryptocalc/crypto_coins/model/coin_rank_model.dart';
 import 'package:http/http.dart' as http;
 
 class CoinRankResponseApi {

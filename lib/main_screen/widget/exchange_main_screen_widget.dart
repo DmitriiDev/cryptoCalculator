@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:cryptocalc/crypto_coins/model/binanceCoinModel.dart';
+import 'package:cryptocalc/crypto_coins/model/binance_coin_model.dart';
 import 'package:cryptocalc/crypto_coins/model/coin_symbol_name_model.dart';
 import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
 import 'package:cryptocalc/currency/model/country.dart';
@@ -8,7 +8,7 @@ import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:cryptocalc/main.dart';
-import 'package:cryptocalc/main_screen/widget/exchangeControlsWidget.dart';
+import 'package:cryptocalc/main_screen/widget/exchange_controls_widget.dart';
 import 'package:floating_action_bubble/floating_action_bubble.dart';
 import 'package:http/http.dart' as http;
 import 'package:cryptocalc/crypto_coins/ui/widgets/coin_to_pick_controller.dart';
@@ -18,10 +18,10 @@ import 'package:stock_market_data/stock_market_data.dart';
 import 'package:ticker_search/ticker_search.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'coinCardWidget.dart';
+import 'coin_card_widget.dart';
 
 class ExchangFullScreenWidget extends StatefulWidget {
-  const ExchangFullScreenWidget({Key? key}) : super(key: key);
+  const ExchangFullScreenWidget({super.key});
 
   @override
   State<ExchangFullScreenWidget> createState() =>
@@ -183,7 +183,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                   body: Center(
                       child: SizedBox(
                     child: Column(children: [
-                      ExchangeControlsWidget(model.getCurrencyRate),
+                      ExchangeControlsWidget(model.getCurrencyRate,
+                          amountOfAssets: snapshot.data!.length),
                       const SizedBox(height: 5),
                       Expanded(
                         child: ListView.builder(
@@ -217,7 +218,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                                         .getpairWith,
                                     rate: model.getCurrencyRate,
                                     type: snapshot.data![index].currency,
-                                    currenycCode: snapshot.data![index].symbol
+                                    currenycCode: snapshot
+                                        .data![index].currencyCode
                                         .toUpperCase(),
                                   ));
                             }),
@@ -280,6 +282,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                 id: "",
                 image: "",
                 name: e.fullName,
+                currencyCode: e.symbol,
                 price: c.price,
                 lastPrice: c.price,
                 symbol: c.symbol,
@@ -366,6 +369,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
             id: "",
             image: "",
             name: value,
+            currencyCode: key,
             price: '${result.endPrice}',
             lastPrice: '0.0',
             symbol: key,
@@ -401,6 +405,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
             id: "",
             image: "",
             name: value.name!,
+            currencyCode: value.currencyCode!,
             price: '${rate.chart.result.first.meta.previousClose}',
             lastPrice: '0.0',
             symbol: value.isoCode!,
