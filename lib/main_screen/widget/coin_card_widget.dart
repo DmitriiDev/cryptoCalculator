@@ -1,6 +1,6 @@
 import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
 import 'package:cryptocalc/currency/model/currency_symbol.dart';
-import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
+import 'package:cryptocalc/util/get_image_asset.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +11,7 @@ Widget coinCard(
     required double amount,
     required double rate,
     required bool type,
+    required bool isCryptoExchange,
     required String currenycCode}) {
   double oldPrice = coin.lastPrice.isEmpty
       ? double.parse(coin.price)
@@ -108,8 +109,8 @@ Widget coinCard(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          amountFormat(
-                              coin, amount, rate, type, currenycCode, pairWith),
+                          amountFormat(coin, amount, rate, type,
+                              isCryptoExchange, currenycCode, pairWith),
                           textAlign: TextAlign.end,
                           maxLines: 1,
                           style: TextStyle(
@@ -123,8 +124,8 @@ Widget coinCard(
                           ),
                         ),
                         Text(
-                            rateExchange(coin, amount, rate, type, currenycCode,
-                                pairText),
+                            rateExchange(coin, amount, rate, type,
+                                isCryptoExchange, currenycCode, pairText),
                             style: const TextStyle(
                               fontSize: 10,
                               color: Colors.grey,
@@ -144,11 +145,10 @@ Widget coinCard(
 }
 
 String amountFormat(ExchangeScreenCoinModel coin, double amount, double rate,
-    bool type, String currenycCode, String pairWith) {
-    String pairText = pairWith.length == 3
+    bool type, bool isCryptoExchange, String currenycCode, String pairWith) {
+  String pairText = pairWith.length == 3
       ? pairWith
       : pairWith.replaceAll("USD", "").replaceAll("=X", "");
-
 
   final CurrencyTextInputFormatter formatterCoins = CurrencyTextInputFormatter(
     decimalDigits: 3,
@@ -160,6 +160,11 @@ String amountFormat(ExchangeScreenCoinModel coin, double amount, double rate,
     symbol: '${currencySymbolMap[currenycCode] ?? ""} ',
   );
 
+  if (isCryptoExchange) {
+    return formatterCoins.format(((double.parse((coin.price)) * amount) / rate)
+        .toStringAsFixed(coin.decimalCurrency));
+  }
+
   return type
       ? formatterCurrency.format(((double.parse((coin.price)) * amount) / rate)
           .toStringAsFixed(coin.decimalCurrency))
@@ -168,8 +173,9 @@ String amountFormat(ExchangeScreenCoinModel coin, double amount, double rate,
 }
 
 String rateExchange(ExchangeScreenCoinModel coin, double amount, double rate,
-    bool type, String currenycCode, String pairWith) {
-  String amountText = amountFormat(coin, 1, rate, type, currenycCode, pairWith);
+    bool type, bool isCryptoExchange, String currenycCode, String pairWith) {
+  String amountText = amountFormat(
+      coin, 1, rate, type, isCryptoExchange, currenycCode, pairWith);
   String pairText = pairWith.length == 3
       ? pairWith
       : pairWith.replaceAll("USD", "").replaceAll("=X", "");

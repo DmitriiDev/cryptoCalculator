@@ -4,6 +4,7 @@ import 'package:cryptocalc/crypto_coins/model/binance_coin_model.dart';
 import 'package:cryptocalc/crypto_coins/model/coin_symbol_name_model.dart';
 import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
 import 'package:cryptocalc/currency/model/country.dart';
+import 'package:cryptocalc/currency/model/search_data_model.dart';
 import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
@@ -18,6 +19,7 @@ import 'package:stock_market_data/stock_market_data.dart';
 import 'package:ticker_search/ticker_search.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import '../../crypto_coins/model/search_crypto_data_model.dart';
 import 'coin_card_widget.dart';
 
 class ExchangFullScreenWidget extends StatefulWidget {
@@ -165,6 +167,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                                     tickers[e.symbol] = e.description ?? "")
                                 .toList();
                             getStockData(tickers);
+                            return null;
                           });
                           setState(() {
                             _dataStreamController.sink.add(stocksData);
@@ -218,6 +221,9 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                                         .getpairWith,
                                     rate: model.getCurrencyRate,
                                     type: snapshot.data![index].currency,
+                                    isCryptoExchange: context
+                                        .watch<ExchangeModel>()
+                                        .isToCrypto,
                                     currenycCode: snapshot
                                         .data![index].currencyCode
                                         .toUpperCase(),
@@ -255,7 +261,11 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     channelHome.sink.close();
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const CryptoListController()),
+      MaterialPageRoute(
+          builder: (context) => CryptoListController(
+                showAppBar: true,
+                model: SearchCryptoDataModel(),
+              )),
     ).then((value) async {
       tickerList = [];
       allCoinsList = [];
@@ -388,7 +398,10 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
   Future<void> navigateToCurrencyList(BuildContext context) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const CurrencyListController()),
+      MaterialPageRoute(
+          builder: (context) =>  CurrencyListController(
+                showAppBar: true, model: SearchDataModel(),
+              )),
     ).then((value) {
       getCurrencyData(value);
     });
