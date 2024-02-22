@@ -10,3 +10,8 @@ String getFlagImageAssetPath(String assetSymbol) {
 
   return "assets/${updatedName.toLowerCase()}.png";
 }
+
+String getStockImageAssetPath(String assetSymbol) {
+  var updatedName = assetSymbol;
+  return "assets/stocks/$updatedName.png";
+}

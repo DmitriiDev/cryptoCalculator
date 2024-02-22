@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:cryptocalc/crypto_coins/model/binance_coin_model.dart';
 import 'package:cryptocalc/crypto_coins/model/coin_symbol_name_model.dart';
 import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
@@ -65,10 +66,19 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
         CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
     loadData();
-    subscribeToCoins(tickerList, names);
+        subscribeToCoins(tickerList, names);
+
   }
 
   void loadData() async {
+    tickerList = [];
+    allCoinsList = [];
+    names = [];
+    stockTicker = [];
+    tickers = <String, String>{};
+    stocksData = [];
+    currencyData = [];
+
     var items = (box.values.toList().reversed.toList()
         as List<ExchangeScreenCoinModel>);
     allCoinsList.addAll(items);
@@ -77,7 +87,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
       names.add(i.symbol);
     }
     setState(() {
-      _dataStreamController.sink.add(items);
+      _dataStreamController.sink.add(allCoinsList);
     });
   }
 
@@ -169,9 +179,6 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                             getStockData(tickers);
                             return null;
                           });
-                          setState(() {
-                            _dataStreamController.sink.add(stocksData);
-                          });
                         },
                       ),
                     ],
@@ -252,7 +259,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
             .toList();
       });
     } else {
-      // print('Failed to load coin list: ${response.statusCode}');
+      log('Failed to load coin list: ${response.statusCode}');
     }
   }
 
@@ -267,27 +274,17 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                 model: SearchCryptoDataModel(),
               )),
     ).then((value) async {
-      tickerList = [];
-      allCoinsList = [];
       var returnData = (value as List<CoinSymbolNameModel>);
       List<CoinSymbolNameModel> formateData = [];
-      print(value.first.symbol);
       for (var e in returnData) {
         formateData.add(CoinSymbolNameModel(
             symbol: '${e.symbol}USDT'.toUpperCase(),
             fullName: e.fullName,
             isPicked: true));
       }
-
-      var onlySymbols = formateData.map((e) => e.symbol).toList();
-      for (var value in formateData) {
-        tickerList.add('${value.symbol.toLowerCase()}@ticker');
-      }
-
       for (var c in coinList) {
         for (var e in formateData) {
           if (c.symbol.toLowerCase() == e.symbol.toLowerCase()) {
-            tickerList.add('${c.symbol.toLowerCase()}@ticker');
             var coin = ExchangeScreenCoinModel(
                 id: "",
                 image: "",
@@ -298,26 +295,27 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                 symbol: c.symbol,
                 pairWith: c.symbol,
                 decimalCurrency: 3,
-                currency: false);
+                currency: false,
+                isStock: false);
             allCoinsList.add(coin);
-            box.add(coin);
+            box.add(coin).then((value) => loadData());
           }
         }
       }
-
-      // print("tickerList ${tickerList.length}");
-      // print(tickerList);
+      // // print("tickerList ${tickerList.length}");
+      // // print(tickerList);
       // print("coins is ${coinList.length}");
-      // print("coins is ${allCoinsList.first.name}");
-      subscribeToCoins(tickerList, onlySymbols);
+      // print("coins is ${allCoinsList.length}");
+      // loadData();
+      // subscribeToCoins(tickerList, names);
     });
   }
 
   subscribeToCoins(
       List<String> tickerList, List<String> coinsToSubscribe) async {
     allCoinsList += coinsList;
-    print(names.toString());
-    print(allCoinsList.toString());
+    // print(names.toString());
+    // print(allCoinsList.toString());
     connectToServer(tickerList, coinsToSubscribe);
   }
 
@@ -370,11 +368,12 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
   }
 
   void getStockData(Map<String, String> stockNames) async {
-    stocksData = [];
+    // stocksData = [];
     stockNames.forEach((key, value) async {
       await stockMarketDataService
           .getBackTestResultForSymbol(key)
           .then((result) {
+        print(result.endPrice);
         var share = ExchangeScreenCoinModel(
             id: "",
             image: "",
@@ -385,12 +384,10 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
             symbol: key,
             pairWith: "USD",
             decimalCurrency: 3,
-            currency: false);
-        stocksData.add(share);
-        box.add(share);
-        setState(() {
-          _dataStreamController.sink.add(stocksData);
-        });
+            currency: false,
+            isStock: true);
+        // stocksData.add(share);
+        box.add(share).then((value) => loadData());
       });
     });
   }
@@ -399,8 +396,9 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) =>  CurrencyListController(
-                showAppBar: true, model: SearchDataModel(),
+          builder: (context) => CurrencyListController(
+                showAppBar: true,
+                model: SearchDataModel(),
               )),
     ).then((value) {
       getCurrencyData(value);
@@ -408,7 +406,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
   }
 
   void getCurrencyData(List<Country> currencyNames) async {
-    currencyData = [];
+    // currencyData = [];
     currencyNames.forEach((value) async {
       // print(value.currencyCode);
       await YahooFinanceApi.fetchChartData('${value.currencyCode}=X')
@@ -424,12 +422,10 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
             symbol: value.isoCode!,
             pairWith: "USD",
             decimalCurrency: 3,
-            currency: true);
-        currencyData.add(currency);
-        box.add(currency);
-        setState(() {
-          _dataStreamController.sink.add(currencyData);
-        });
+            currency: true,
+            isStock: false);
+        // currencyData.add(currency);
+        box.add(currency).then((value) => loadData());
       });
     });
   }

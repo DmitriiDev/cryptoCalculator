@@ -32,6 +32,9 @@ class ExchangeScreenCoinModel extends HiveObject {
   late bool currency;
 
   @HiveField(9)
+  late bool isStock;
+
+  @HiveField(10)
   late int decimalCurrency;
 
   ExchangeScreenCoinModel({
@@ -45,5 +48,6 @@ class ExchangeScreenCoinModel extends HiveObject {
     required this.pairWith,
     required this.currency,
     required this.decimalCurrency,
+    required this.isStock
   });
 }

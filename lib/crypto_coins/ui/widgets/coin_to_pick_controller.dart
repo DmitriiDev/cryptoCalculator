@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CryptoListController extends StatefulWidget {
-  CryptoListController(
+  const CryptoListController(
       {required this.showAppBar, super.key, required this.model});
 
   final bool showAppBar;
-   SearchCryptoDataModel model;
+  final SearchCryptoDataModel model;
 
   @override
   CryptoListControllerState createState() => CryptoListControllerState();

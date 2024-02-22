@@ -27,14 +27,15 @@ class ExchangeScreenCoinModelAdapter
       symbol: fields[6] as String,
       pairWith: fields[7] as String,
       currency: fields[8] as bool,
-      decimalCurrency: fields[9] as int,
+      decimalCurrency: fields[10] as int,
+      isStock: fields[9] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, ExchangeScreenCoinModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -54,6 +55,8 @@ class ExchangeScreenCoinModelAdapter
       ..writeByte(8)
       ..write(obj.currency)
       ..writeByte(9)
+      ..write(obj.isStock)
+      ..writeByte(10)
       ..write(obj.decimalCurrency);
   }
 

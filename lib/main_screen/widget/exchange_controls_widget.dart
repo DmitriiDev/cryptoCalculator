@@ -186,16 +186,20 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
       MaterialPageRoute(
           builder: (context) => const CryptoCurrencyConvertorPicker()),
     ).then((value) async {
-      if (value[0] == null) {
+      print("dddddd");
+      print(value);
+      var crypto = value[0];
+      print(crypto);
+      if (value[0].runtimeType == Country) {
+        currencyText = (value).first.currencyCode!;
+        currencyFlag = value.first.isoCode!;
+        context.read<ExchangeModel>().toExchange(currencyText);
+        setState(() {});
+      } else {
         var symbol = (value[1] as List<CoinSymbolNameModel>).first.symbol;
         currencyText = symbol;
         currencyFlag = symbol;
         context.read<ExchangeModel>().toExchangeCrypto(symbol);
-        setState(() {});
-      } else {
-        currencyText = (value[0] as Country).currencyCode!;
-        currencyFlag = value.first.isoCode!;
-        context.read<ExchangeModel>().toExchange(currencyText);
         setState(() {});
       }
     });

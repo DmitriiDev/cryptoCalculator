@@ -20,11 +20,7 @@ Widget coinCard(
   String pairText = pairWith.length == 3
       ? pairWith
       : pairWith.replaceAll("USD", "").replaceAll("=X", "");
-  String assetShortName = coin.name.replaceAll("USDT", "");
-
-  // print('coin.price ${coin.price}');
-  // print('amount $amount');
-  // print('rate $currenycCode');
+  String assetShortName = coin.name.replaceAll("USDT", "").split(" ").first;
   final height = MediaQuery.of(context).size.height;
   final width = MediaQuery.of(context).size.width;
 
@@ -42,23 +38,45 @@ Widget coinCard(
               Row(
                 children: [
                   ClipOval(
-                    child: Image.asset(
-                      getFlagImageAssetPath(coin.symbol.toLowerCase()),
-                      height: width * 0.085,
-                      width: width * 0.085,
-                      fit: BoxFit.fill,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        height: width * 0.083,
-                        width: width * 0.083,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: Colors.grey.shade400, width: 1)),
-                        child: Center(
-                          child: Text(coin.name.isEmpty ? '0' : coin.name[0]),
-                        ),
-                      ),
-                    ),
+                    child: coin.isStock
+                        ? Image.asset(
+                            getStockImageAssetPath(coin.symbol),
+                            height: width * 0.085,
+                            width: width * 0.085,
+                            fit: BoxFit.fill,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              height: width * 0.083,
+                              width: width * 0.083,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                      color: Colors.grey.shade400, width: 1)),
+                              child: Center(
+                                child: Text(
+                                    coin.name.isEmpty ? '0' : coin.name[0]),
+                              ),
+                            ),
+                          )
+                        : Image.asset(
+                            getFlagImageAssetPath(coin.symbol.toLowerCase()),
+                            height: width * 0.085,
+                            width: width * 0.085,
+                            fit: BoxFit.fill,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                              height: width * 0.083,
+                              width: width * 0.083,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                      color: Colors.grey.shade400, width: 1)),
+                              child: Center(
+                                child: Text(
+                                    coin.name.isEmpty ? '0' : coin.name[0]),
+                              ),
+                            ),
+                          ),
                   ),
                   SizedBox(
                     width: width * 0.014,
