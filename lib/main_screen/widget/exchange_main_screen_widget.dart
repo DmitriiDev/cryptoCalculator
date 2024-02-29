@@ -4,6 +4,7 @@ import 'package:cryptocalc/crypto_coins/model/binance_coin_model.dart';
 import 'package:cryptocalc/crypto_coins/model/coin_symbol_name_model.dart';
 import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
 import 'package:cryptocalc/crypto_coins/model/search_crypto_data_model.dart';
+import 'package:cryptocalc/crypto_coins/network/coin_price_binance_network.dart';
 import 'package:cryptocalc/currency/model/country.dart';
 import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
@@ -54,8 +55,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
 
   @override
   void initState() {
-    fetchCoinListFromBinance();
     super.initState();
+    loadData();
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
@@ -64,7 +65,6 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     final curvedAnimation =
         CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
-    loadData();
   }
 
   void loadData() async {
@@ -75,6 +75,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     tickers = <String, String>{};
     stocksData = [];
     currencyData = [];
+
+    coinList = await CoinsPriceBinance().fetchCoinListFromBinance();
 
     var items = (box.values.toList().reversed.toList()
         as List<ExchangeScreenCoinModel>);
@@ -245,25 +247,6 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     );
   }
 
-  Future<void> fetchCoinListFromBinance() async {
-    final response = await http.get(
-      Uri.parse('https://api3.binance.com/api/v3/ticker/price'),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      final BinanceCoins apiResponse = BinanceCoins.fromJson(data);
-
-      setState(() {
-        coinList = apiResponse.data
-            .where((element) => element.symbol.contains("USDT"))
-            .toList();
-      });
-    } else {
-      // print('Failed to load coin list: ${response.statusCode}');
-    }
-  }
-
   Future<void> _navigateAndDisplayCryptoCoinSelection(
       BuildContext context) async {
     channelHome.sink.close();
@@ -351,7 +334,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
   }
 
   void getStockData(Map<String, String> stockNames) async {
-    stocksData = [];
+    channelHome.sink.close();
     stockNames.forEach((key, value) async {
       await stockMarketDataService
           .getBackTestResultForSymbol(key)
@@ -388,7 +371,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
   }
 
   void getCurrencyData(List<Country> currencyNames) async {
-    currencyData = [];
+    channelHome.sink.close();
     currencyNames.forEach((value) async {
       await YahooFinanceApi.fetchChartData('${value.currencyCode}=X')
           .then((result) {

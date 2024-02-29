@@ -118,7 +118,6 @@ Widget coinCard(
                 ],
               ),
               SizedBox(
-                // width: width * 0.32,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

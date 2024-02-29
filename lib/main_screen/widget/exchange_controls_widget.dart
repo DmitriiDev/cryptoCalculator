@@ -186,10 +186,6 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
       MaterialPageRoute(
           builder: (context) => const CryptoCurrencyConvertorPicker()),
     ).then((value) async {
-      print("dddddd");
-      print(value);
-      var crypto = value[0];
-      print(crypto);
       if (value[0].runtimeType == Country) {
         currencyText = (value).first.currencyCode!;
         currencyFlag = value.first.isoCode!;
@@ -249,7 +245,7 @@ class ExchangeModel extends ChangeNotifier {
   }
 
   void toExchangeCrypto(String coinSymbol) async {
-    final chartData = await CoinPriceBinance().fetchData(coinSymbol);
+    final chartData = await CoinsPriceBinance().fetchData(coinSymbol);
     _coinPrice = double.parse(chartData.price);
     _pairWith = chartData.symbol.replaceAll("USDT", "");
     isToCrypto = true;
