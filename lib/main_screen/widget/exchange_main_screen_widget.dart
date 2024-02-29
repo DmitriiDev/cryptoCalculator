@@ -65,10 +65,17 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
         CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
     loadData();
-    subscribeToCoins(tickerList, names);
   }
 
   void loadData() async {
+    tickerList = [];
+    allCoinsList = [];
+    names = [];
+    stockTicker = [];
+    tickers = <String, String>{};
+    stocksData = [];
+    currencyData = [];
+
     var items = (box.values.toList().reversed.toList()
         as List<ExchangeScreenCoinModel>);
     allCoinsList.addAll(items);
@@ -76,11 +83,11 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
       if (i.currency == false && i.isStock == false) {
         tickerList.add('${i.symbol}@ticker'.toLowerCase());
       }
-      names.add(i.symbol);
     }
     setState(() {
       _dataStreamController.sink.add(items);
     });
+    subscribeToCoins(tickerList, names);
   }
 
   @override
@@ -169,6 +176,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                                     tickers[e.symbol] = e.description ?? "")
                                 .toList();
                             getStockData(tickers);
+                            return null;
                           });
                           setState(() {
                             _dataStreamController.sink.add(stocksData);
@@ -266,23 +274,14 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                   showAppBar: true,
                   model: SearchCryptoDataModel(),
                 ))).then((value) async {
-      tickerList = [];
-      allCoinsList = [];
       var returnData = (value as List<CoinSymbolNameModel>);
       List<CoinSymbolNameModel> formateData = [];
-      print(value.first.symbol);
       for (var e in returnData) {
         formateData.add(CoinSymbolNameModel(
             symbol: '${e.symbol}USDT'.toUpperCase(),
             fullName: e.fullName,
             isPicked: true));
       }
-
-      var onlySymbols = formateData.map((e) => e.symbol).toList();
-      for (var value in formateData) {
-        tickerList.add('${value.symbol.toLowerCase()}@ticker');
-      }
-
       for (var c in coinList) {
         for (var e in formateData) {
           if (c.symbol.toLowerCase() == e.symbol.toLowerCase()) {
@@ -299,25 +298,16 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                 decimalCurrency: 3,
                 currency: false,
                 isStock: false);
-            allCoinsList.add(coin);
             box.add(coin);
+            loadData();
           }
         }
       }
-
-      // print("tickerList ${tickerList.length}");
-      // print(tickerList);
-      // print("coins is ${coinList.length}");
-      // print("coins is ${allCoinsList.first.name}");
-      subscribeToCoins(tickerList, onlySymbols);
     });
   }
 
   subscribeToCoins(
       List<String> tickerList, List<String> coinsToSubscribe) async {
-    allCoinsList += coinsList;
-    print(names.toString());
-    print(allCoinsList.toString());
     connectToServer(tickerList, coinsToSubscribe);
   }
 
@@ -352,19 +342,12 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
   void updateCoin(String coinSymbol, String coinPrice, String coinPercentage,
       List<String> names) async {
     var price = coinPrice.substring(0, coinPrice.length - 4);
-    var index = allCoinsList
-        .where((element) => names.contains(element.symbol.toUpperCase()))
-        .toList();
-        
-    index.addAll(stocksData);
-    index.addAll(currencyData);
-
-    for (var i in index) {
+    for (var i in allCoinsList) {
       if (i.symbol == coinSymbol) {
         i.price = price;
       }
     }
-    _dataStreamController.sink.add(index);
+    _dataStreamController.sink.add(allCoinsList);
   }
 
   void getStockData(Map<String, String> stockNames) async {
@@ -385,11 +368,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
             decimalCurrency: 3,
             currency: false,
             isStock: true);
-        stocksData.add(share);
         box.add(share);
-        setState(() {
-          _dataStreamController.sink.add(stocksData);
-        });
+        loadData();
       });
     });
   }
@@ -410,7 +390,6 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
   void getCurrencyData(List<Country> currencyNames) async {
     currencyData = [];
     currencyNames.forEach((value) async {
-      // print(value.currencyCode);
       await YahooFinanceApi.fetchChartData('${value.currencyCode}=X')
           .then((result) {
         final rate = YahooFinanceStockResponse.fromJson(result);
@@ -426,11 +405,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
             decimalCurrency: 3,
             currency: true,
             isStock: false);
-        currencyData.add(currency);
         box.add(currency);
-        setState(() {
-          _dataStreamController.sink.add(currencyData);
-        });
+        loadData();
       });
     });
   }
