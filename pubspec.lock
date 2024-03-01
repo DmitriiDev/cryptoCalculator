@@ -185,14 +185,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
-  country_currency_pickers:
-    dependency: "direct main"
-    description:
-      name: country_currency_pickers
-      sha256: "5a6fd78f33f5c7806677b04675be14bb8a5da3826678817790ed871f1c024ce5"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0"
   crypto:
     dependency: transitive
     description:
@@ -201,14 +193,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
-  crypto_market:
-    dependency: "direct main"
-    description:
-      name: crypto_market
-      sha256: "99ba6b9aabaca4322089adb19d48abb0401332d77b2553b591143d10d9c68aa1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.3"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -233,14 +217,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.4"
-  decimal:
-    dependency: transitive
-    description:
-      name: decimal
-      sha256: "24a261d5d5c87e86c7651c417a5dbdf8bcd7080dd592533910e8d0505a279f21"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.3"
   dio:
     dependency: transitive
     description:
@@ -249,14 +225,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.4.0"
-  equatable:
-    dependency: transitive
-    description:
-      name: equatable
-      sha256: c2b87cb7756efdf69892005af546c56c0b5037f54d2a88269b4f347a505e3ca2
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.5"
   fake_async:
     dependency: transitive
     description:
@@ -281,14 +249,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0"
-  fixed:
-    dependency: transitive
-    description:
-      name: fixed
-      sha256: "2f45316422263a7b27506fca71972f7167b03857fc2105d94df5e01cafbd76ce"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.1"
   fixnum:
     dependency: transitive
     description:
@@ -297,14 +257,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
-  fl_chart:
-    dependency: transitive
-    description:
-      name: fl_chart
-      sha256: "48a1b69be9544e2b03d9a8e843affd89e43f3194c9248776222efcb4206bb1ec"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.62.0"
   floating_action_bubble:
     dependency: "direct main"
     description:
@@ -355,14 +307,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
-  get:
-    dependency: transitive
-    description:
-      name: get
-      sha256: e4e7335ede17452b391ed3b2ede016545706c01a02292a6c97619705e7d2a85e
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.6.6"
   glob:
     dependency: transitive
     description:
@@ -460,7 +404,7 @@ packages:
     source: hosted
     version: "0.7.0"
   json_annotation:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: json_annotation
       sha256: b10a7b2ff83d83c777edba3c6a0f97045ddadd56c944e1a23a3fdf43a1bf4467
@@ -475,14 +419,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.7.1"
-  k_chart:
-    dependency: transitive
-    description:
-      name: k_chart
-      sha256: "621341e440c8a6ca4aa496b470b2f835c2c59eca3cac1146d4557012b60ef5ab"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.1"
   lints:
     dependency: transitive
     description:
@@ -531,14 +467,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  money2:
-    dependency: "direct main"
-    description:
-      name: money2
-      sha256: "98ac9c752f0dd71c88b72d90976433fbc28c9063d561070aab3b796a835c1740"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.0"
   nested:
     dependency: transitive
     description:
@@ -691,14 +619,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.3"
-  rational:
-    dependency: transitive
-    description:
-      name: rational
-      sha256: ba58e9e18df9abde280e8b10051e4bce85091e41e8e7e411b6cde2e738d357cf
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.2"
   rxdart:
     dependency: transitive
     description:
@@ -962,4 +882,4 @@ packages:
     version: "3.1.2"
 sdks:
   dart: ">=3.2.0 <4.0.0"
-  flutter: ">=3.13.0"
+  flutter: ">=3.10.0"

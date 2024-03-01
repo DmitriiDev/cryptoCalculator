@@ -34,8 +34,6 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  crypto_market: ^0.0.3
-  money2: ^4.0.0
   provider: ^6.1.1
   cached_network_image: ^3.3.1
   http: ^0.13.6
@@ -43,8 +41,6 @@ dependencies:
   cached_svg_image: ^0.0.4
   stock_market_data: ^0.1.2
   ticker_search: ^0.0.5
-  json_annotation: ^4.5.0
-  country_currency_pickers: ^3.0.0
   currency_text_input_formatter: ^2.1.11
   floating_action_bubble: ^1.1.4
   hive: ^2.2.3
