@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:developer';
 import 'package:cryptocalc/crypto_coins/model/coin_symbol_name_model.dart';
+import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
 import 'package:cryptocalc/crypto_coins/network/coin_price_binance_network.dart';
 import 'package:cryptocalc/currency/model/country.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
@@ -212,6 +214,9 @@ class ExchangeModel extends ChangeNotifier {
   double _currencyRate = 1.0;
   double _coinPrice = 0.0;
   bool isToCrypto = false;
+  final StreamController<List<ExchangeScreenCoinModel>> _dataStreamController =
+      StreamController<List<ExchangeScreenCoinModel>>();
+  List<ExchangeScreenCoinModel> _allCoinsList = <ExchangeScreenCoinModel>[];
 
   double get getCurrencyRate {
     return _currencyRate;
@@ -231,6 +236,14 @@ class ExchangeModel extends ChangeNotifier {
 
   double get getAmountFromInput {
     return _inputAmount;
+  }
+
+  StreamController<List<ExchangeScreenCoinModel>> get getStreamCoins {
+    return _dataStreamController;
+  }
+
+  List<ExchangeScreenCoinModel> get getAllCoinsList {
+    return _allCoinsList;
   }
 
   void toExchange(String currencyCode) async {
@@ -261,6 +274,16 @@ class ExchangeModel extends ChangeNotifier {
 
   void setRate(double rate) {
     _currencyRate = rate;
+    notifyListeners();
+  }
+
+  void setCoinStream(List<ExchangeScreenCoinModel> coins) {
+    _dataStreamController.sink.add(coins);
+    notifyListeners();
+  }
+
+  void clearCoinListForStream() {
+    _allCoinsList = [];
     notifyListeners();
   }
 

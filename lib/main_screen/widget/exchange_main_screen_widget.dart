@@ -1,25 +1,20 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:cryptocalc/crypto_coins/model/binance_coin_model.dart';
-import 'package:cryptocalc/crypto_coins/model/coin_symbol_name_model.dart';
 import 'package:cryptocalc/crypto_coins/model/exchange_screen_coin_model.dart';
 import 'package:cryptocalc/crypto_coins/model/search_crypto_data_model.dart';
+import 'package:cryptocalc/crypto_coins/network/binance_web_socket_network.dart';
 import 'package:cryptocalc/crypto_coins/network/coin_price_binance_network.dart';
-import 'package:cryptocalc/currency/model/country.dart';
-import 'package:cryptocalc/currency/model/yahoo_currency_model.dart';
 import 'package:cryptocalc/currency/network/currency_api.dart';
 import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:cryptocalc/main.dart';
 import 'package:cryptocalc/main_screen/widget/exchange_controls_widget.dart';
+import 'package:cryptocalc/stock/network/stock_api.dart';
 import 'package:floating_action_bubble/floating_action_bubble.dart';
-import 'package:http/http.dart' as http;
 import 'package:cryptocalc/crypto_coins/ui/widgets/coin_to_pick_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stock_market_data/stock_market_data.dart';
 import 'package:ticker_search/ticker_search.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import '../../currency/model/search_data_model.dart';
 import 'coin_card_widget.dart';
 
@@ -34,29 +29,21 @@ class ExchangFullScreenWidget extends StatefulWidget {
 class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     with SingleTickerProviderStateMixin {
   final model = ExchangeModel();
-  List<ExchangeScreenCoinModel> allCoinsList = <ExchangeScreenCoinModel>[];
   List<String> tickerList = [];
-  double amount = 1.0;
-  final StreamController<List<ExchangeScreenCoinModel>> _dataStreamController =
-      StreamController<List<ExchangeScreenCoinModel>>();
   late List<SymbolPrice> coinList = [];
   List<ExchangeScreenCoinModel> coinsList = [];
   List<String> names = [];
-  late WebSocketChannel channelHome;
-  final StockMarketDataService stockMarketDataService =
-      StockMarketDataService();
-  final YahooFinanceService yahooFinanceServicePrices = YahooFinanceService();
+  final YahooStockApi stockMarketDataService = YahooStockApi();
   List<StockTicker>? stockTicker = [];
   Map<String, String> tickers = <String, String>{};
-  List<ExchangeScreenCoinModel> stocksData = [];
-  List<ExchangeScreenCoinModel> currencyData = [];
   late Animation<double> _animation;
   late AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
-    loadData();
+    BinanceWebSocketNetwork();
+    loadData(true);
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
@@ -67,29 +54,30 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
   }
 
-  void loadData() async {
+  void loadData(bool isCrypto) async {
     tickerList = [];
-    allCoinsList = [];
     names = [];
     stockTicker = [];
     tickers = <String, String>{};
-    stocksData = [];
-    currencyData = [];
 
     coinList = await CoinsPriceBinance().fetchCoinListFromBinance();
 
     var items = (box.values.toList().reversed.toList()
         as List<ExchangeScreenCoinModel>);
-    allCoinsList.addAll(items);
-    for (var i in allCoinsList) {
+    model.clearCoinListForStream();
+    model.getAllCoinsList.addAll(items);
+    for (var i in model.getAllCoinsList) {
       if (i.currency == false && i.isStock == false) {
         tickerList.add('${i.symbol}@ticker'.toLowerCase());
       }
     }
     setState(() {
-      _dataStreamController.sink.add(items);
+      model.setCoinStream(items);
     });
-    subscribeToCoins(tickerList, names);
+    if (isCrypto) {
+      BinanceWebSocketNetwork()
+          .connectToServer(tickerList, model.getAllCoinsList, model);
+    }
   }
 
   @override
@@ -97,8 +85,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     return ChangeNotifierProvider.value(
       value: model,
       child: StreamBuilder<List<ExchangeScreenCoinModel>>(
-        stream: _dataStreamController.stream,
-        initialData: allCoinsList,
+        stream: model.getStreamCoins.stream,
+        initialData: model.getAllCoinsList,
         builder: (context, snapshot) {
           return MaterialApp(
               home: Scaffold(
@@ -177,11 +165,9 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                                 .map((e) =>
                                     tickers[e.symbol] = e.description ?? "")
                                 .toList();
-                            getStockData(tickers);
+                            stockMarketDataService.getStockData(tickers);
+                            loadData(false);
                             return null;
-                          });
-                          setState(() {
-                            _dataStreamController.sink.add(stocksData);
                           });
                         },
                       ),
@@ -217,10 +203,11 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                                   ),
                                   onDismissed: (direction) {
                                     setState(() {
-                                      _dataStreamController.sink
-                                          .add(allCoinsList);
-                                      box.delete(allCoinsList[index].key);
-                                      allCoinsList.removeAt(index);
+                                      box.delete(
+                                          model.getAllCoinsList[index].key);
+                                      model.getAllCoinsList.removeAt(index);
+                                      model
+                                          .setCoinStream(model.getAllCoinsList);
                                     });
                                   },
                                   child: coinCard(
@@ -249,7 +236,6 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
 
   Future<void> _navigateAndDisplayCryptoCoinSelection(
       BuildContext context) async {
-    channelHome.sink.close();
     await Navigator.push(
         context,
         MaterialPageRoute(
@@ -257,104 +243,9 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                   showAppBar: true,
                   model: SearchCryptoDataModel(),
                 ))).then((value) async {
-      var returnData = (value as List<CoinSymbolNameModel>);
-      List<CoinSymbolNameModel> formateData = [];
-      for (var e in returnData) {
-        formateData.add(CoinSymbolNameModel(
-            symbol: '${e.symbol}USDT'.toUpperCase(),
-            fullName: e.fullName,
-            isPicked: true));
-      }
-      for (var c in coinList) {
-        for (var e in formateData) {
-          if (c.symbol.toLowerCase() == e.symbol.toLowerCase()) {
-            tickerList.add('${c.symbol.toLowerCase()}@ticker');
-            var coin = ExchangeScreenCoinModel(
-                id: "",
-                image: "",
-                name: e.fullName,
-                currencyCode: e.symbol,
-                price: c.price,
-                lastPrice: c.price,
-                symbol: c.symbol,
-                pairWith: c.symbol,
-                decimalCurrency: 3,
-                currency: false,
-                isStock: false);
-            box.add(coin);
-            loadData();
-          }
-        }
-      }
+      BinanceWebSocketNetwork().getCoinToSubscribe(coinList, value);
     });
-  }
-
-  subscribeToCoins(
-      List<String> tickerList, List<String> coinsToSubscribe) async {
-    connectToServer(tickerList, coinsToSubscribe);
-  }
-
-  connectToServer(tickerList, List<String> coinNames) {
-    channelHome = IOWebSocketChannel.connect(Uri.parse(
-      'wss://stream.binance.com:9443/ws/stream?',
-    ));
-    var tickerLowCased =
-        (tickerList as List<String>).map((e) => e.toLowerCase()).toList();
-    var subRequestHome = {
-      'method': "SUBSCRIBE",
-      'params': tickerLowCased,
-      'id': 1,
-    };
-
-    var jsonString = json.encode(subRequestHome);
-    channelHome.sink.add(jsonString);
-    var result = channelHome.stream.transform(
-      StreamTransformer<dynamic, dynamic>.fromHandlers(
-        handleData: (number, sink) {
-          sink.add(number);
-        },
-      ),
-    );
-    result.listen((event) {
-      var snapshot = jsonDecode(event);
-      updateCoin(snapshot['s'].toString(), snapshot['c'].toString(),
-          snapshot['P'].toString(), coinNames);
-    });
-  }
-
-  void updateCoin(String coinSymbol, String coinPrice, String coinPercentage,
-      List<String> names) async {
-    var price = coinPrice.substring(0, coinPrice.length - 4);
-    for (var i in allCoinsList) {
-      if (i.symbol == coinSymbol) {
-        i.price = price;
-      }
-    }
-    _dataStreamController.sink.add(allCoinsList);
-  }
-
-  void getStockData(Map<String, String> stockNames) async {
-    channelHome.sink.close();
-    stockNames.forEach((key, value) async {
-      await stockMarketDataService
-          .getBackTestResultForSymbol(key)
-          .then((result) {
-        var share = ExchangeScreenCoinModel(
-            id: "",
-            image: "",
-            name: value,
-            currencyCode: key,
-            price: '${result.endPrice}',
-            lastPrice: '0.0',
-            symbol: key,
-            pairWith: "USD",
-            decimalCurrency: 3,
-            currency: false,
-            isStock: true);
-        box.add(share);
-        loadData();
-      });
-    });
+    loadData(true);
   }
 
   Future<void> navigateToCurrencyList(BuildContext context) async {
@@ -366,31 +257,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                 model: SearchDataModel(),
               )),
     ).then((value) {
-      getCurrencyData(value);
-    });
-  }
-
-  void getCurrencyData(List<Country> currencyNames) async {
-    channelHome.sink.close();
-    currencyNames.forEach((value) async {
-      await YahooFinanceApi.fetchChartData('${value.currencyCode}=X')
-          .then((result) {
-        final rate = YahooFinanceStockResponse.fromJson(result);
-        var currency = ExchangeScreenCoinModel(
-            id: "",
-            image: "",
-            name: value.name!,
-            currencyCode: value.currencyCode!,
-            price: '${rate.chart.result.first.meta.previousClose}',
-            lastPrice: '0.0',
-            symbol: value.isoCode!,
-            pairWith: "USD",
-            decimalCurrency: 3,
-            currency: true,
-            isStock: false);
-        box.add(currency);
-        loadData();
-      });
+      YahooFinanceApi.getCurrencyData(value);
+      loadData(false);
     });
   }
 }
