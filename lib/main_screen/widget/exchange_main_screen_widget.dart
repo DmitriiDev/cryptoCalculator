@@ -95,91 +95,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                   ),
                   floatingActionButtonLocation:
                       FloatingActionButtonLocation.endFloat,
-                  floatingActionButton: FloatingActionBubble(
-                    items: <Bubble>[
-                      Bubble(
-                        title: "Currency",
-                        iconColor: Colors.white,
-                        bubbleColor: Colors.blue,
-                        icon: Icons.currency_exchange,
-                        titleStyle:
-                            const TextStyle(fontSize: 16, color: Colors.white),
-                        onPress: () {
-                          navigateToCurrencyList(context);
-                        },
-                      ),
-                      Bubble(
-                        title: "Crypto",
-                        iconColor: Colors.white,
-                        bubbleColor: Colors.blue,
-                        icon: Icons.currency_bitcoin_rounded,
-                        titleStyle:
-                            const TextStyle(fontSize: 16, color: Colors.white),
-                        onPress: () {
-                          _navigateAndDisplayCryptoCoinSelection(context);
-                        },
-                      ),
-                      Bubble(
-                        title: "Stocks",
-                        iconColor: Colors.white,
-                        bubbleColor: Colors.blue,
-                        icon: Icons.candlestick_chart,
-                        titleStyle:
-                            const TextStyle(fontSize: 16, color: Colors.white),
-                        onPress: () async {
-                          stockTicker = await showSearch(
-                            context: context,
-                            delegate: TickerSearch(
-                              searchFieldLabel: 'Search ticker',
-                              suggestions: [
-                                TickerSuggestion(
-                                  const Icon(Icons.view_headline),
-                                  'Main',
-                                  TickersList.main,
-                                ),
-                                TickerSuggestion(
-                                  const Icon(Icons.business_sharp),
-                                  'Companies',
-                                  TickersList.companies,
-                                ),
-                                TickerSuggestion(
-                                  const Icon(
-                                      Icons.precision_manufacturing_outlined),
-                                  'Sectors',
-                                  TickersList.sectors,
-                                ),
-                                TickerSuggestion(
-                                  const Icon(Icons.workspaces_outline),
-                                  'Futures',
-                                  TickersList.futures,
-                                ),
-                                TickerSuggestion(
-                                  const Icon(Icons.account_balance_outlined),
-                                  'Bonds',
-                                  TickersList.bonds,
-                                ),
-                              ],
-                            ),
-                          ).then((value) {
-                            value!
-                                .map((e) =>
-                                    tickers[e.symbol] = e.description ?? "")
-                                .toList();
-                            stockMarketDataService.getStockData(tickers);
-                            loadData(false);
-                            return null;
-                          });
-                        },
-                      ),
-                    ],
-                    animation: _animation,
-                    onPress: () => _animationController.isCompleted
-                        ? _animationController.reverse()
-                        : _animationController.forward(),
-                    iconColor: Colors.blue,
-                    iconData: Icons.add,
-                    backGroundColor: Colors.white,
-                  ),
+                  floatingActionButton: floatinActionButton(),
                   body: Center(
                       child: SizedBox(
                     child: Column(children: [
@@ -232,6 +148,91 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
         },
       ),
     );
+  }
+
+  Widget floatinActionButton() {
+    return FloatingActionBubble(
+      items: <Bubble>[
+        Bubble(
+          title: "Currency",
+          iconColor: Colors.white,
+          bubbleColor: Colors.blue,
+          icon: Icons.currency_exchange,
+          titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
+          onPress: () {
+            navigateToCurrencyList(context);
+          },
+        ),
+        Bubble(
+          title: "Crypto",
+          iconColor: Colors.white,
+          bubbleColor: Colors.blue,
+          icon: Icons.currency_bitcoin_rounded,
+          titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
+          onPress: () {
+            _navigateAndDisplayCryptoCoinSelection(context);
+          },
+        ),
+        Bubble(
+          title: "Stocks",
+          iconColor: Colors.white,
+          bubbleColor: Colors.blue,
+          icon: Icons.candlestick_chart,
+          titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
+          onPress: () async {
+            _searchStock();
+          },
+        ),
+      ],
+      animation: _animation,
+      onPress: () => _animationController.isCompleted
+          ? _animationController.reverse()
+          : _animationController.forward(),
+      iconColor: Colors.blue,
+      iconData: Icons.add,
+      backGroundColor: Colors.white,
+    );
+  }
+
+  Future<void> _searchStock() {
+    return showSearch(
+      context: context,
+      delegate: TickerSearch(
+        searchFieldLabel: 'Search ticker',
+        suggestions: [
+          TickerSuggestion(
+            const Icon(Icons.view_headline),
+            'Main',
+            TickersList.main,
+          ),
+          TickerSuggestion(
+            const Icon(Icons.business_sharp),
+            'Companies',
+            TickersList.companies,
+          ),
+          TickerSuggestion(
+            const Icon(Icons.precision_manufacturing_outlined),
+            'Sectors',
+            TickersList.sectors,
+          ),
+          TickerSuggestion(
+            const Icon(Icons.workspaces_outline),
+            'Futures',
+            TickersList.futures,
+          ),
+          TickerSuggestion(
+            const Icon(Icons.account_balance_outlined),
+            'Bonds',
+            TickersList.bonds,
+          ),
+        ],
+      ),
+    ).then((value) {
+      value!.map((e) => tickers[e.symbol] = e.description ?? "").toList();
+      stockMarketDataService.getStockData(tickers);
+      loadData(false);
+      return null;
+    });
   }
 
   Future<void> _navigateAndDisplayCryptoCoinSelection(
