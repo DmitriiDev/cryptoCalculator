@@ -69,39 +69,40 @@ class CurrencyListControllerState extends State<CurrencyListController> {
                             itemBuilder: (BuildContext context, index) {
                               return CheckboxListTile(
                                   secondary: SizedBox(
-                                      height: 35,
-                                      width: 45,
-                                      child: Image.asset(
-                                          getFlagImageAssetPath(widget
-                                              .model
-                                              .filteredCurrencies[index]
-                                              .isoCode!),
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  Container(
-                                                    height: width * 0.083,
-                                                    width: width * 0.083,
-                                                    decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        border: Border.all(
-                                                            color: Colors
-                                                                .grey.shade400,
-                                                            width: 1)),
-                                                    child: Center(
-                                                      child: Text(widget
-                                                              .model
-                                                              .filteredCurrencies[
-                                                                  index]
-                                                              .isoCode!
-                                                              .isEmpty
-                                                          ? '0'
-                                                          : widget
-                                                              .model
-                                                              .filteredCurrencies[
-                                                                  index]
-                                                              .isoCode![0]),
-                                                    ),
-                                                  ))),
+                                      height: width * 0.085,
+                                      width: width * 0.085,
+                                      child: ClipOval(
+                                        child: Image.asset(
+                                            getFlagImageAssetPath(widget
+                                                .model
+                                                .filteredCurrencies[index]
+                                                .isoCode!),
+                                            fit: BoxFit.fitHeight,
+                                            errorBuilder: (context, error,
+                                                    stackTrace) =>
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      border: Border.all(
+                                                          color: Colors
+                                                              .grey.shade400,
+                                                          width: 1)),
+                                                  child: Center(
+                                                    child: Text(widget
+                                                            .model
+                                                            .filteredCurrencies[
+                                                                index]
+                                                            .isoCode!
+                                                            .isEmpty
+                                                        ? '0'
+                                                        : widget
+                                                            .model
+                                                            .filteredCurrencies[
+                                                                index]
+                                                            .isoCode![0]),
+                                                  ),
+                                                )),
+                                      )),
                                   title: Text(widget.model
                                       .filteredCurrencies[index].currencyCode!),
                                   subtitle: Text(widget

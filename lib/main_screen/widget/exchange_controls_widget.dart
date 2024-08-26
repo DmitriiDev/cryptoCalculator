@@ -35,6 +35,7 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
       Padding(
         padding: const EdgeInsets.all(4.0),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Expanded(
               child: Container(
@@ -44,31 +45,90 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   height: height * 0.12,
-                  child: Column(
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
                     children: [
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      const Text(
-                        "Convert",
-                        style: TextStyle(
-                            fontWeight: FontWeight.normal, color: Colors.grey),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
                       SizedBox(
-                          height: height * 0.05,
-                          child: const InputAmountWidget()),
-                      const Text(
-                        "Amount",
-                        style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.grey,
-                            fontSize: 13),
+                        height: 5,
+                      ),
+                      Expanded(
+                        child: Text(
+                          "Convert",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.grey),
+                        ),
+                      ),
+                      Expanded(child: InputAmountWidget()),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Expanded(
+                        child: Text(
+                          "Amount",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.grey,
+                              fontSize: 13),
+                        ),
                       ),
                     ],
                   )),
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            Expanded(
+              child: InkWell(
+                onTap: () {
+                  navigateToCurrencyList(context);
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  height: height * 0.12,
+                  padding: const EdgeInsets.only(
+                      top: 8, bottom: 4, right: 8, left: 8),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(234, 234, 234, 236),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          "For",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.grey),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Expanded(
+                        child: Text('${widget.amountOfAssets}',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 18)),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      const Expanded(
+                        child: Text(
+                          "Assets",
+                          style: TextStyle(
+                              fontWeight: FontWeight.normal,
+                              color: Colors.grey,
+                              fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // ),
             ),
             Expanded(
               child: Padding(
@@ -89,92 +149,55 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text(
-                          "To",
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              color: Colors.grey),
+                        const Expanded(
+                          child: Text(
+                            "To",
+                            style: TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Colors.grey),
+                          ),
                         ),
-                        SizedBox(
-                          height: height * 0.05,
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Expanded(
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(
-                                  width: 25,
-                                  height: 20,
-                                  child: Image.asset(getFlagImageAssetPath(
-                                      currencyFlag.toLowerCase()))),
-                              const SizedBox(
-                                width: 5,
+                              Expanded(
+                                child: SizedBox(
+                                    width: 25,
+                                    height: 20,
+                                    child: Image.asset(getFlagImageAssetPath(
+                                        currencyFlag.toLowerCase()))),
                               ),
-                              Text(currencyText,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18)),
+                              Expanded(
+                                child: Text(currencyText,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18)),
+                              ),
                             ],
                           ),
                         ),
-                        Text(
-                          "1＄ = ${context.watch<ExchangeModel>().getCurrencyRate}",
-                          style: const TextStyle(
-                              fontWeight: FontWeight.normal,
-                              color: Colors.grey,
-                              fontSize: 13),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Expanded(
+                          child: Text(
+                            "1＄ = ${context.watch<ExchangeModel>().getCurrencyRate}",
+                            style: const TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Colors.grey,
+                                fontSize: 13),
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: InkWell(
-                onTap: () {
-                  navigateToCurrencyList(context);
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  height: height * 0.12,
-                  padding: const EdgeInsets.only(
-                      top: 8, bottom: 4, right: 8, left: 8),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(234, 234, 234, 236),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text(
-                        "For",
-                        style: TextStyle(
-                            fontWeight: FontWeight.normal, color: Colors.grey),
-                      ),
-                      SizedBox(
-                        height: height * 0.05,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('${widget.amountOfAssets}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18)),
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Assets",
-                        style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.grey,
-                            fontSize: 13),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // ),
             ),
           ],
         ),
@@ -194,7 +217,7 @@ class ExchangeControlState extends State<ExchangeControlsWidget> {
         context.read<ExchangeModel>().toExchange(currencyText);
         setState(() {});
       } else {
-        var symbol = (value[1] as List<CoinSymbolNameModel>).first.symbol;
+        var symbol = (value as List<CoinSymbolNameModel>).first.symbol;
         currencyText = symbol;
         currencyFlag = symbol;
         context.read<ExchangeModel>().toExchangeCrypto(symbol);

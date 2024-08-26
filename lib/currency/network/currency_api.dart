@@ -18,11 +18,10 @@ class YahooFinanceApi {
     }
   }
 
-   static void getCurrencyData(List<Country> currencyNames) async {
+  static void getCurrencyData(List<Country> currencyNames) async {
     // ignore: avoid_function_literals_in_foreach_calls
     currencyNames.forEach((value) async {
-      await fetchChartData('${value.currencyCode}=X')
-          .then((result) {
+      await fetchChartData('${value.currencyCode}=X').then((result) {
         final rate = YahooFinanceStockResponse.fromJson(result);
         var currency = ExchangeScreenCoinModel(
             id: "",
@@ -41,4 +40,14 @@ class YahooFinanceApi {
     });
   }
 
+  static void updateCurrencyData(List<ExchangeScreenCoinModel> coins) async {
+    for (var coin in coins) {
+      await fetchChartData('${coin.currencyCode}=X').then((result) {
+        final rate = YahooFinanceStockResponse.fromJson(result);
+        coin.price = '${rate.chart.result.first.meta.previousClose}';
+        // var oldCoin = box.get(coin.key);
+        box.put(coin.key, coin);
+      });
+    }
+  }
 }

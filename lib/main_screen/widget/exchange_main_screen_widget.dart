@@ -9,7 +9,6 @@ import 'package:cryptocalc/currency/ui/widgets/currency_list_controller.dart';
 import 'package:cryptocalc/main.dart';
 import 'package:cryptocalc/main_screen/widget/exchange_controls_widget.dart';
 import 'package:cryptocalc/stock/network/stock_api.dart';
-import 'package:floating_action_bubble/floating_action_bubble.dart';
 import 'package:cryptocalc/crypto_coins/ui/widgets/coin_to_pick_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,22 +35,16 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
   final YahooStockApi stockMarketDataService = YahooStockApi();
   List<StockTicker>? stockTicker = [];
   Map<String, String> tickers = <String, String>{};
-  late Animation<double> _animation;
-  late AnimationController _animationController;
+  late Timer timer;
 
   @override
   void initState() {
     super.initState();
     BinanceWebSocketNetwork();
     loadData(true);
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
-
-    final curvedAnimation =
-        CurvedAnimation(curve: Curves.easeInOut, parent: _animationController);
-    _animation = Tween<double>(begin: 0, end: 1).animate(curvedAnimation);
+    timer = Timer.periodic(const Duration(seconds: 120), (Timer t) {
+      updateData();
+    });
   }
 
   void loadData(bool isCrypto) async {
@@ -93,9 +86,14 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                   appBar: AppBar(
                     title: const Text('Coin Exchange'),
                   ),
-                  floatingActionButtonLocation:
-                      FloatingActionButtonLocation.endFloat,
-                  floatingActionButton: floatinActionButton(),
+                  floatingActionButton: FloatingActionButton(
+                    onPressed: () {
+                      _showFullWidthMenu(context);
+                    },
+                    child: const Icon(Icons.add),
+                  ),
+                  floatingActionButtonLocation: FloatingActionButtonLocation
+                      .centerFloat, 
                   body: Center(
                       child: SizedBox(
                     child: Column(children: [
@@ -113,7 +111,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                                   background: Container(
                                     color: Colors.red,
                                     alignment: Alignment.centerRight,
-                                    padding: const EdgeInsets.only(right: 16.0),
+                                    padding:
+                                        const EdgeInsets.only(right: 16.0),
                                     child: const Icon(Icons.delete,
                                         color: Colors.white),
                                   ),
@@ -122,8 +121,8 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
                                       box.delete(
                                           model.getAllCoinsList[index].key);
                                       model.getAllCoinsList.removeAt(index);
-                                      model
-                                          .setCoinStream(model.getAllCoinsList);
+                                      model.setCoinStream(
+                                          model.getAllCoinsList);
                                     });
                                   },
                                   child: coinCard(
@@ -150,51 +149,7 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     );
   }
 
-  Widget floatinActionButton() {
-    return FloatingActionBubble(
-      items: <Bubble>[
-        Bubble(
-          title: "Currency",
-          iconColor: Colors.white,
-          bubbleColor: Colors.blue,
-          icon: Icons.currency_exchange,
-          titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
-          onPress: () {
-            navigateToCurrencyList(context);
-          },
-        ),
-        Bubble(
-          title: "Crypto",
-          iconColor: Colors.white,
-          bubbleColor: Colors.blue,
-          icon: Icons.currency_bitcoin_rounded,
-          titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
-          onPress: () {
-            _navigateAndDisplayCryptoCoinSelection(context);
-          },
-        ),
-        Bubble(
-          title: "Stocks",
-          iconColor: Colors.white,
-          bubbleColor: Colors.blue,
-          icon: Icons.candlestick_chart,
-          titleStyle: const TextStyle(fontSize: 16, color: Colors.white),
-          onPress: () async {
-            _searchStock();
-          },
-        ),
-      ],
-      animation: _animation,
-      onPress: () => _animationController.isCompleted
-          ? _animationController.reverse()
-          : _animationController.forward(),
-      iconColor: Colors.blue,
-      iconData: Icons.add,
-      backGroundColor: Colors.white,
-    );
-  }
-
-  Future<void> _searchStock() {
+  Future<void> navigagteToStockSearch() {
     return showSearch(
       context: context,
       delegate: TickerSearch(
@@ -235,7 +190,21 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     });
   }
 
-  Future<void> _navigateAndDisplayCryptoCoinSelection(
+  Future<void> navigateToCurrencyList(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => CurrencyListController(
+                showAppBar: true,
+                model: SearchDataModel(),
+              )),
+    ).then((value) {
+      YahooFinanceApi.getCurrencyData(value);
+      loadData(false);
+    });
+  }
+
+  Future<void> navigateAndDisplayCryptoCoinSelection(
       BuildContext context) async {
     await Navigator.push(
         context,
@@ -249,17 +218,65 @@ class _ExchangFullScreenWidgetState extends State<ExchangFullScreenWidget>
     loadData(true);
   }
 
-  Future<void> navigateToCurrencyList(BuildContext context) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => CurrencyListController(
-                showAppBar: true,
-                model: SearchDataModel(),
-              )),
-    ).then((value) {
-      YahooFinanceApi.getCurrencyData(value);
-      loadData(false);
-    });
+  void _showFullWidthMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor:
+          Colors.transparent, 
+      builder: (context) {
+        return Container(
+          width: double.infinity, 
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize
+                .min, 
+            children: [
+              ListTile(
+                leading: const Icon(Icons.currency_bitcoin_rounded),
+                title: const Text('Crypto'),
+                onTap: () {
+                  navigateAndDisplayCryptoCoinSelection(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.currency_exchange),
+                title: const Text('Currency'),
+                onTap: () {
+                  navigateToCurrencyList(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.candlestick_chart),
+                title: const Text('Stocks'),
+                onTap: () {
+                  navigagteToStockSearch();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void updateData() {
+    List<ExchangeScreenCoinModel> currency = [];
+    List<ExchangeScreenCoinModel> stock = [];
+
+    for (var i in model.getAllCoinsList) {
+      if (i.isStock == true) {
+        stock.add(i);
+      }
+
+      if (i.currency == true) {
+        currency.add(i);
+      }
+    }
+    YahooFinanceApi.updateCurrencyData(currency);
+    stockMarketDataService.updateStockData(stock);
+    loadData(false);
   }
 }

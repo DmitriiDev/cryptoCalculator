@@ -15,12 +15,17 @@ class InputAmountWidgetState extends State<InputAmountWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(5.0),
+      padding: const EdgeInsets.all(1.0),
       child: TextField(
         controller: _textController,
         textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 22.0, fontWeight: FontWeight.bold), // Set the font size
-          decoration: const InputDecoration(border: InputBorder.none),
+        textAlignVertical:TextAlignVertical.top,
+          style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            decoration: const InputDecoration(
+                  isDense: true, 
+                  contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8.0),
+                  border: InputBorder.none,
+                ),
           onChanged: (String value) {
             context
                 .read<ExchangeModel>()
