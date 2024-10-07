@@ -11,6 +11,7 @@ Widget coinCard(
     required double amount,
     required double rate,
     required bool type,
+    required bool isConvertor,
     required bool isCryptoExchange,
     required String currenycCode}) {
   double oldPrice = coin.lastPrice.isEmpty
@@ -125,29 +126,47 @@ Widget coinCard(
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(
-                          amountFormat(coin, amount, rate, type,
-                              isCryptoExchange, currenycCode, pairWith),
-                          textAlign: TextAlign.end,
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: double.parse(coin.price) > oldPrice
-                                ? Colors.lightGreen
-                                : double.parse(coin.price) < oldPrice
-                                    ? Colors.red
-                                    : null,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Text(
-                            rateExchange(coin, amount, rate, type,
-                                isCryptoExchange, currenycCode, pairText),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey,
-                              fontWeight: FontWeight.w400,
-                            ))
+                        isConvertor == true
+                            ? Text(
+                                amountFormat(coin, amount, rate, type,
+                                    isCryptoExchange, currenycCode, pairWith),
+                                textAlign: TextAlign.end,
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: double.parse(coin.price) > oldPrice
+                                      ? Colors.lightGreen
+                                      : double.parse(coin.price) < oldPrice
+                                          ? Colors.red
+                                          : null,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              )
+                            : Text(
+                                rateWatchWatch(coin, amount, rate, type,
+                                    isCryptoExchange, currenycCode, pairText),
+                                textAlign: TextAlign.end,
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  color: double.parse(coin.price) > oldPrice
+                                      ? Colors.lightGreen
+                                      : double.parse(coin.price) < oldPrice
+                                          ? Colors.red
+                                          : null,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                        isConvertor == true
+                            ? Text(
+                                rateExchange(coin, amount, rate, type,
+                                    isCryptoExchange, currenycCode, pairText),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w400,
+                                ))
+                            : Container()
                       ],
                     ),
                   ],
@@ -219,8 +238,8 @@ String ratePriceOfAsset(
     return type
         ? formatterCurrency.formatString(((rate) * double.parse((coin.price)))
             .toStringAsFixed(coin.decimalCurrency))
-        : formatterCoins
-            .formatString((double.parse((coin.price)) / (rate)).toStringAsFixed(coin.decimalCurrency));
+        : formatterCoins.formatString((double.parse((coin.price)) / (rate))
+            .toStringAsFixed(coin.decimalCurrency));
   }
 
   return type
@@ -243,5 +262,65 @@ String rateExchange(ExchangeScreenCoinModel coin, double amount, double rate,
   String result = type
       ? '1 $pairText = $amountText'
       : '1 ${currenycCode.replaceAll("USDT", "")} = ${currencySymbolMap[pairText] ?? pairText} ${amountText.split(" ").last}';
+  return result;
+}
+
+//
+String amountFormatWatch(
+    ExchangeScreenCoinModel coin,
+    double amount,
+    double rate,
+    bool type,
+    bool isCryptoExchange,
+    String currenycCode,
+    String pairWith) {
+  final CurrencyTextInputFormatter formatterCoins =
+      CurrencyTextInputFormatter.currency(
+    decimalDigits: 3,
+    symbol: '${coin.symbol.replaceAll("USDT", "").replaceAll("=X", "")} ',
+  );
+  final CurrencyTextInputFormatter formatterCurrency =
+      CurrencyTextInputFormatter.currency(
+    decimalDigits: 3,
+    symbol: '${coin.symbol.replaceAll("USDT", "").replaceAll("=X", "")} ',
+  );
+
+// for case: 1 ETH convert to USD / Apple / BTC
+  if (isCryptoExchange) {
+    return type
+        ? formatterCurrency.formatString(
+            ((rate * amount) * double.parse((coin.price)))
+                .toStringAsFixed(coin.decimalCurrency))
+        : formatterCoins.formatString(
+            ((double.parse((coin.price)) * amount) / rate)
+                .toStringAsFixed(coin.decimalCurrency));
+  }
+
+  // print("${coin.name} - ${coin.price}");
+  //   print("${coin.name} = ${coin.price}/${rate}");
+
+  print(coin.pairWith);
+
+// for case: 100 USD convert to Rub / Apple / BTC
+  return type
+      ? formatterCurrency.formatString((rate /(double.parse((coin.price))))
+          .toStringAsFixed(coin.decimalCurrency))
+      : formatterCoins.formatString(((double.parse((coin.price)) / rate))
+          .toStringAsFixed(coin.decimalCurrency));
+}
+
+String rateWatchWatch(ExchangeScreenCoinModel coin, double amount, double rate,
+    bool type, bool isCryptoExchange, String currenycCode, String pairWith) {
+  String amountText = amountFormatWatch(
+      coin, amount, rate, type, isCryptoExchange, currenycCode, pairWith);
+
+  String pairText = pairWith;
+  if (pairText.isEmpty) {
+    pairText = "USD";
+  }
+
+  String result = type
+      ? amountText
+      : '${currencySymbolMap[coin.currencyCode] ?? pairText} ${amountText.split(" ").last}';
   return result;
 }
