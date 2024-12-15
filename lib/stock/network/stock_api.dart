@@ -6,7 +6,7 @@ class YahooStockApi {
   final StockMarketDataService stockMarketDataService =
       StockMarketDataService();
 
-   void getStockData(Map<String, String> stockNames) async {
+  void getStockData(Map<String, String> stockNames) async {
     stockNames.forEach((key, value) async {
       await stockMarketDataService
           .getBackTestResultForSymbol(key)
@@ -26,5 +26,16 @@ class YahooStockApi {
         box.add(share);
       });
     });
+  }
+
+  void updateStockData(List<ExchangeScreenCoinModel> stockCoins,) async {
+    for (var coin in stockCoins) {
+      await stockMarketDataService
+          .getBackTestResultForSymbol(coin.symbol)
+          .then((result) {
+        coin.price = '${result.endPrice}';
+        box.put(coin.key, coin);
+      });
+    }
   }
 }

@@ -139,6 +139,15 @@ class CryptoListControllerState extends State<CryptoListController> {
                                                   widget.model
                                                       .filtredList[index]);
                                             }
+
+                                            if (widget.showAppBar == false) {
+                                              for (var e in widget
+                                                  .model.itemsForReturn) {
+                                                print(e.fullName);
+                                              }
+                                              Navigator.pop(context,
+                                                  widget.model.itemsForReturn);
+                                            }
                                           });
                                         });
                                   }),
